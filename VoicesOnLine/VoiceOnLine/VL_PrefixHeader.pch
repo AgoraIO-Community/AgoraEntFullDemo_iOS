@@ -1,0 +1,80 @@
+//
+//  VL_PrefixHeader.pch
+//  VoiceOnLine
+//
+
+#ifndef VL_PrefixHeader_pch
+#define VL_PrefixHeader_pch
+#import "VoiceOnLine-Swift.h"
+
+#import <AFNetworking.h>
+#import "VLAPIRequest.h"
+#import "MJRefresh.h"
+
+#import <QMUIKit/QMUIKit.h>
+#import "QDCommonUI.h"
+#import "QDUIHelper.h"
+#import "QDThemeManager.h"
+#import "VLToast.h"
+
+//提示
+#import <MBProgressHUD.h>
+#import <SVProgressHUD.h>
+
+
+#import <YYModel/YYModel.h>
+#import <YYCache/YYCache.h>
+#import <YYCategories/YYCategories.h>
+#import "MJExtension.h"
+#import "VLCache.h"
+#import "VLUserCenter.h"
+#import "VLGlobalHelper.h"
+
+#import "VLColorDefine.h"
+#import "VLMacroDefine.h"
+#import <LEEAlert.h>
+
+//布局
+#import <Masonry.h>
+#import <YYText/YYText.h>
+//#import <JXCategoryView.h>
+
+//类别
+#import "NSDictionary+JKSafeAccess.h"
+#import "NSObject+Extension.h"
+#import "NSArray+JKSafeAccess.h"
+#import "NSObject+JKAutoCoding.h"
+#import "NSString+Emoji.h"
+#import "extobjc.h"
+#import "NSString+Helper.h"
+#import "UIView+VL.h"
+
+//SDWebImage
+#import "UIImageView+WebCache.h"
+#import "UIButton+WebCache.h"
+
+//base
+#import "BaseNavigationController.h"
+#import "BaseViewController.h"
+#import "AppDelegate.h"
+
+
+// mannager
+#import "IQKeyboardManager.h"
+
+// 控制器
+// 颜色
+#import <ChameleonFramework/Chameleon.h>
+
+//字体
+#import "VLFontUtils.h"
+
+//视图
+#import "LSTPopView.h"
+#import "VLHotSpotBtn.h"
+
+//
+#import "VLURLPathConfig.h"
+
+
+#endif /* VL_PrefixHeader_pch */
