@@ -9,6 +9,8 @@
 #import "VLCommonWebViewController.h"
 #import "VLMineView.h"
 #import "VLUploadImageResModel.h"
+#import <AgoraRtcKit/AgoraRtcKit.h>
+#import "VLConfig.h"
 
 @interface VLMineViewController ()
 <UINavigationControllerDelegate,UIImagePickerControllerDelegate,VLMineViewDelegate>
@@ -200,9 +202,6 @@
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     [picker dismissViewControllerAnimated:YES completion:^{
         UIImage *image = info[UIImagePickerControllerEditedImage];
-        if (picker.sourceType == UIImagePickerControllerSourceTypeCamera) {
-            UIImageWriteToSavedPhotosAlbum(info[UIImagePickerControllerOriginalImage], nil, nil, nil);
-        }
         [self uploadHeadImageWithImage:image];
     }];
 }
@@ -223,6 +222,25 @@
         }
     } failure:^(NSError * _Nullable error) {
         
+    }];
+}
+
+- (void)loadUpdateUserIconRequest:(NSString *)iconUrl image:(UIImage *)image{
+    NSDictionary *param = @{
+        @"userNo" : VLUserCenter.user.userNo ?: @"",
+        @"headUrl" : iconUrl ?: @""
+    };
+    
+    [VLAPIRequest postRequestURL:kURLPathUploadUserInfo parameter:param showHUD:YES success:^(VLResponseDataModel * _Nonnull response) {
+        if (response.code == 0) {
+            [VLToast toast:NSLocalizedString(@"修改成功", nil)];
+            [self.mineView refreseAvatar:image];
+            VLUserCenter.user.headUrl = iconUrl;
+            [[VLUserCenter center] storeUserInfo:VLUserCenter.user];
+        }else{
+            [VLToast toast:response.message];
+        }
+    } failure:^(NSError * _Nullable error) {
     }];
 }
 
@@ -349,9 +367,10 @@
     [VLAPIRequest uploadImageURL:kURLPathUploadImage showHUD:YES appendKey:@"file" images:@[image] success:^(VLResponseDataModel * _Nonnull response) {
         if (response.code == 0) {
             VLUploadImageResModel *model = [VLUploadImageResModel vj_modelWithDictionary:response.data];
-            [self.mineView refreseAvatar:image];
-            VLUserCenter.user.headUrl = model.url;
-            [[VLUserCenter center] storeUserInfo:VLUserCenter.user];
+            [self loadUpdateUserIconRequest:model.url image:image];
+        }
+        else {
+            [VLToast toast:response.message];
         }
     } failure:^(NSError * _Nullable error) {
     }];
@@ -371,7 +390,7 @@
 - (UILabel *)versionLabel {
     if (!_versionLabel) {
         _versionLabel = [[UILabel alloc] init];
-        _versionLabel.text = [NSString stringWithFormat:NSLocalizedString(@"当前版本号 LTS%@(%@)", nil),[VLGlobalHelper appVersion], [VLGlobalHelper appBuild]];
+        _versionLabel.text = [NSString stringWithFormat:NSLocalizedString(@"当前版本号 LTS%@(%@) SDK %@", nil),[VLGlobalHelper appVersion], [VLGlobalHelper appBuild], [AgoraRtcEngineKit getSdkVersion]];
         _versionLabel.font = VLUIFontMake(12);
         _versionLabel.textColor = UIColorMakeWithHex(@"#6C7192");
     }

@@ -63,7 +63,7 @@
 - (void)setSeatsArray:(NSArray *)roomSeatsArray {
     self.roomSeatsArray = [[NSMutableArray alloc]initWithArray:roomSeatsArray];
     for (VLRoomSeatModel *seatModel in self.roomSeatsArray) {
-        if (seatModel.id != nil) {
+        if (seatModel.id != nil && [seatModel.id isEqual:@""]) {
             if ([[self.roomSeatsViewArray allKeys]containsObject:seatModel.id]) {
                 [self.roomSeatsViewArray removeObjectForKey:seatModel.id];
             }

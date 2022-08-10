@@ -10,6 +10,7 @@
 #import "VLPrivacyCustomView.h"
 #import "VLCommonWebViewController.h"
 #import "VLPopImageVerifyView.h"
+#import "VLToast.h"
 
 @interface VLLoginViewController () <VLLoginInputVerifyCodeViewDelegate, VLPrivacyCustomViewDelegate,VLPopImageVerifyViewDelegate>
 
@@ -21,6 +22,7 @@
 @property (nonatomic, strong) UIButton *agreeButton;    // 同意按钮
 @property (nonatomic, strong) YYLabel *privacyLabel;    // 隐私协议
 @property (nonatomic, strong) LSTPopView *popView;
+@property (nonatomic, assign) bool policyAgreed;
 
 @end
 
@@ -28,11 +30,24 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    _policyAgreed = NO;
+    
     [self setBackgroundImage:@"home_bg_image"];
     [self setNaviTitleName:NSLocalizedString(@"声网", nil)];
-//    [self alertPrivacyAlertView];
     [self setupViews];
     [self setupLayout];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [self showAlertPrivacyView];
+}
+
+- (void)showAlertPrivacyView
+{
+    if(_policyAgreed == NO) {
+        [self alertPrivacyAlertView];
+    }
 }
 
 - (void)setupViews {
@@ -124,17 +139,20 @@
     switch (type) {
         case VLPrivacyClickTypeAgree:
             self.agreeButton.selected = YES;
+            _policyAgreed = YES;
+            [self closePrivaxyAlertView];
             break;
         case VLPrivacyClickTypeDisagree:
             self.agreeButton.selected = NO;
+            exit(0);
             break;
         case VLPrivacyClickTypePrivacy:
             [self pushToWebView:kURLPathH5Privacy];
+            [self closePrivaxyAlertView];
             break;
         default:
             break;
     }
-    [self closePrivaxyAlertView];
 }
 
 - (void)closePrivaxyAlertView {
@@ -164,8 +182,8 @@
 
 - (void)loginClick:(UIButton *)button {
     if (![self checkPhoneNo]) return;
-//    if (![self checkPrivacyAgree]) return;
-//    if (![self checkVerifyCode]) return;
+    if (![self checkPrivacyAgree]) return;
+    if (![self checkVerifyCode]) return;
     
     [self popImageVerifyView];
 }
@@ -246,7 +264,7 @@
     
     NSDictionary *param = @{
         @"phone" : self.phoneView.phoneNo,
-        @"code":@"999999"
+        @"code": self.verifyView.verifyCode
     };
     [VLAPIRequest getRequestURL:kURLPathLogin parameter:param showHUD:YES success:^(VLResponseDataModel * _Nonnull response) {
         if (response.code == 0) {
@@ -254,7 +272,15 @@
             [[VLUserCenter center] storeUserInfo:model];
             [[VLGlobalHelper app] configRootViewController];
         }
+        else {
+            dispatch_main_async_safe(^{
+                [VLToast toast:NSLocalizedString(@"验证码校验失败，请重试", nil)];
+            })
+        }
     } failure:^(NSError * _Nullable error) {
+        dispatch_main_async_safe(^{
+            [VLToast toast:NSLocalizedString(@"验证码校验失败，请重试", nil)];
+        })
     }];
 }
 

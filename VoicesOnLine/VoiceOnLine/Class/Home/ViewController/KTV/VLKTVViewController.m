@@ -343,9 +343,16 @@ static NSInteger streamId = -1;
 
 }
 
-- (void)dealloc {
+- (void) viewDidDisappear:(BOOL)animated
+{
     streamId = -1;
+    [self.AgoraMcc unregisterEventHandler];
+    [AgoraMusicContentCenter destroy];
+    [AgoraRtcEngineKit destroy];
     [[NSNotificationCenter defaultCenter]removeObserver:self];
+}
+
+- (void)dealloc {
 }
 
 /// 销毁播放器
@@ -685,10 +692,10 @@ static NSInteger streamId = -1;
 #pragma mark --底部按钮的点击事件
 - (void)bottomSetAudioMute:(NSInteger)ifMute{
     if (ifMute == 1) {
-        [self.RTCkit muteLocalAudioStream:NO];
+        [self.RTCkit muteLocalAudioStream:YES];
     }
     else{
-        [self.RTCkit muteLocalAudioStream:YES];
+        [self.RTCkit muteLocalAudioStream:NO];
     }
 }
 

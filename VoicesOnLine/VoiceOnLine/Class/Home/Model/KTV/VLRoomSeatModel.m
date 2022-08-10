@@ -18,8 +18,8 @@
     self.headUrl = @"";
     self.name = @"";
     self.userNo = @"";
-    self.id = @"";
-    self.isSelfMuted = 1;
+    self.id = nil;
+    self.isSelfMuted = 0;
     self.isVideoMuted = 0;
 
 }

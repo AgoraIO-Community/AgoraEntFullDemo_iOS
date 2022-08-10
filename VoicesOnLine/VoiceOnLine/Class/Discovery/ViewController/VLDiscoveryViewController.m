@@ -25,7 +25,8 @@
     self.view.backgroundColor = UIColorMakeWithHex(@"#F7FAFE");
     WKWebViewConfiguration * configuration = [[WKWebViewConfiguration alloc]init];
     CGFloat y = IPHONE_X ? 15 : 0;
-    self.webViewWK = [[WKWebView alloc]initWithFrame:CGRectMake(0, kStatusBarHeight - y, SCREEN_WIDTH, SCREEN_HEIGHT - kSafeAreaBottomHeight - y) configuration:configuration];
+    const int clear_cut = 10;
+    self.webViewWK = [[WKWebView alloc]initWithFrame:CGRectMake(0, kStatusBarHeight - y + clear_cut, SCREEN_WIDTH, SCREEN_HEIGHT - kSafeAreaBottomHeight - y + clear_cut) configuration:configuration];
     self.webViewWK.scrollView.backgroundColor = UIColorMakeWithHex(@"#F7FAFE");
     self.webViewWK.backgroundColor = UIColorMakeWithHex(@"#F7FAFE");
     self.webViewWK.navigationDelegate=self;
@@ -35,10 +36,10 @@
     }
     [self.view addSubview:self.webViewWK];
     [self makeProgressView];
-    [self loadLoaclHtml];
+    [self loadLocalHtml];
 }
 
-- (void)loadLoaclHtml {
+- (void)loadLocalHtml {
     NSString *path = [[NSBundle mainBundle] bundlePath];
     NSURL *baseURL = [NSURL fileURLWithPath:path];
     NSString *htmlPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html"];

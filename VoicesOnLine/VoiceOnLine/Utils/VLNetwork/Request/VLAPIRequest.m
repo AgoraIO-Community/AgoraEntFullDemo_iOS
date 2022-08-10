@@ -214,7 +214,7 @@ static AFHTTPSessionManager *_sessionManager;
             // 图片类型
             NSString *type = imageType.length > 0 ? imageType : @"jpg";
             [formData appendPartWithFileData:imageData
-                                        name:name
+                                        name:@"file"
                                     fileName:[NSString stringWithFormat:@"%@.%@",fileName,type]
                                     mimeType:[NSString stringWithFormat:@"image/%@",type]];
         }

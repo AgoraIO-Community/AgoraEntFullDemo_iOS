@@ -32,6 +32,8 @@
 - (void)setUpUI {
     self.view.backgroundColor = UIColorMakeWithHex(@"#F7FAFE");
     WKWebViewConfiguration * configuration = [[WKWebViewConfiguration alloc]init];
+    configuration.allowsInlineMediaPlayback = YES;
+    configuration.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeAll;
     CGFloat y = IPHONE_X ? 15 : 0;
     self.webViewWK = [[WKWebView alloc]initWithFrame:CGRectMake(0, kStatusBarHeight - y, SCREEN_WIDTH, SCREEN_HEIGHT - kSafeAreaBottomHeight - y) configuration:configuration];
     self.webViewWK.scrollView.backgroundColor = UIColorMakeWithHex(@"#F7FAFE");
@@ -44,10 +46,10 @@
     }
     [self.view addSubview:self.webViewWK];
     [self makeProgressView];
-    [self loadLoaclHtml];
+    [self loadLocalHtml];
 }
 
-- (void)loadLoaclHtml {
+- (void)loadLocalHtml {
 //    NSString *path = [[NSBundle mainBundle] bundlePath];
     self.nameStr = [self.nameStr stringByReplacingOccurrencesOfString:@".html" withString:@""];
     NSString *htmlPath = [[NSBundle mainBundle] pathForResource:self.nameStr ofType:@"html"];
