@@ -124,6 +124,7 @@
         _sourceLabel.font = UIFontMake(10);
         _sourceLabel.text = NSLocalizedString(@"歌曲来自咪咕音乐", nil);
         _sourceLabel.textAlignment = NSTextAlignmentRight;
+        _sourceLabel.hidden = YES;
     }
     return _sourceLabel;
 }
