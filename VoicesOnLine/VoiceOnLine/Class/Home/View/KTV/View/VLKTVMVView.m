@@ -211,9 +211,9 @@
     
     // 是否是合唱歌曲
     if (song.isChorus) {
-        self.config.isHiddenScoreView = YES;
-        self.scoreLabel.hidden = YES;
-        self.scoreUnitLabel.hidden = YES;
+        self.config.isHiddenScoreView = NO;
+        self.scoreLabel.hidden = NO;
+        self.scoreUnitLabel.hidden = NO;
     } else {
         self.config.isHiddenScoreView = NO;
         self.scoreLabel.hidden = NO;
@@ -254,7 +254,7 @@
         self.robMicrophoneView.hidden = self.soloSongView.hidden = YES;
     
     //根据歌曲判断,如果歌曲是合唱那么显示倒计时视图,如果是独唱就开始播放歌曲 2. 播放歌曲的时候如果歌曲是当前用户点的歌曲(显示底部按钮,可以切歌,暂停,) 如果不是就不显示
-    }else {
+    } else {
         VL(weakSelf);
         [self configLrcViewUIWithCurrentSong:song];
         // 歌曲是合唱
@@ -296,11 +296,10 @@
                         //倒计时结束、执行独唱（销毁定时器）
                         [weakSelf soloBtnClickAction];
                     }
-                    
                 } userInfo:@"Fire" repeats:YES];
                 [self.robMicroPhoneTimer fire];
             }
-        }else{                       //准备播放歌曲
+        } else{                       //准备播放歌曲
             self.noBodyOnLineView.hidden = self.robMicrophoneView.hidden = self.soloSongView.hidden = YES;
         }
     }

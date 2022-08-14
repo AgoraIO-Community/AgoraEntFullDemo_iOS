@@ -32,6 +32,8 @@
 - (void)setupView {
 
     self.bgImgView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 12, self.width, self.height-12)];
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(joinBtnClickEvent)];
+    [self.bgImgView addGestureRecognizer:tapGesture];
     self.bgImgView.userInteractionEnabled = YES;
     [self.contentView addSubview:self.bgImgView];
     

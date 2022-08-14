@@ -34,8 +34,8 @@
 
 - (void)setupView {
     VL(weakSelf);
-    [self addSubview:self.listCollectionView];
     [self addSubview:self.emptyView];
+    [self addSubview:self.listCollectionView];
     [self addSubview:self.createBtn];
     
     self.listCollectionView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
@@ -79,7 +79,12 @@
             }else{
                 [self.listCollectionView.mj_footer endRefreshing];
             }
-            self.emptyView.hidden = self.roomListModeArray.count;
+            if(self.roomListModeArray.count > 0) {
+                self.emptyView.hidden = YES;
+            }
+            else {
+                self.emptyView.hidden = NO;
+            }
         }else{
             [self.listCollectionView.mj_header endRefreshing];
             [self.listCollectionView.mj_footer endRefreshing];

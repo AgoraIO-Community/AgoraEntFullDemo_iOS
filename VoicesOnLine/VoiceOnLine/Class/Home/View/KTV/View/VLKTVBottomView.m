@@ -39,8 +39,8 @@ typedef void (^actionSuccess)(BOOL ifSuccess);
     [self addSubview:self.audioBtn];
     
     self.videoBtn = [[VLHotSpotBtn alloc]initWithFrame:CGRectMake(self.audioBtn.right+15, (self.height-24)*0.5, 24, 24)];
-    [self.videoBtn setImage:UIImageMake(@"ktv_video_icon") forState:UIControlStateNormal];
-    [self.videoBtn setImage:UIImageMake(@"ktv_video_icon") forState:UIControlStateSelected];
+    [self.videoBtn setImage:UIImageMake(@"ktv_video_muteIcon") forState:UIControlStateNormal];
+    [self.videoBtn setImage:UIImageMake(@"ktv_video_muteIcon") forState:UIControlStateSelected];
     self.videoBtn.tag = VLKTVBottomBtnClickTypeVideo;
     [self.videoBtn addTarget:self action:@selector(bottomBtnClickEvent:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:self.videoBtn];

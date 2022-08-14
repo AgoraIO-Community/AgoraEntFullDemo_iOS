@@ -27,7 +27,6 @@
 - (instancetype)initWithFrame:(CGRect)frame withRooNo:(NSString *)roomNo ifChorus:(BOOL)ifChorus {
     if (self = [super initWithFrame:frame]) {
         self.backgroundColor = UIColorMakeWithHex(@"#152164");
-//        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(dianGeSuccessEvent:) name:kDianGeSuccessNotification object:nil];
         self.page = 0;
         self.roomNo = roomNo;
         self.ifChorus = ifChorus;
@@ -146,6 +145,7 @@
 }
 
 - (void)dianGeWithModel:(VLSongItmModel*)model {
+    model.ifChorus = self.ifChorus;
     NSDictionary *param = @{
         @"isChorus" : @(self.ifChorus),
         @"roomNo": self.roomNo,

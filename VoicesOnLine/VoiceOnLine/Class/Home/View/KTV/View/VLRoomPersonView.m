@@ -63,7 +63,7 @@
 - (void)setSeatsArray:(NSArray *)roomSeatsArray {
     self.roomSeatsArray = [[NSMutableArray alloc]initWithArray:roomSeatsArray];
     for (VLRoomSeatModel *seatModel in self.roomSeatsArray) {
-        if (seatModel.id != nil && [seatModel.id isEqual:@""]) {
+        if (seatModel.id != nil) {
             if ([[self.roomSeatsViewArray allKeys]containsObject:seatModel.id]) {
                 [self.roomSeatsViewArray removeObjectForKey:seatModel.id];
             }
@@ -76,13 +76,14 @@
             videoCanvas.renderMode = AgoraVideoRenderModeHidden;
             if ([seatModel.id isEqual:VLUserCenter.user.id]) {
                 [self.RTCkit setupLocalVideo:videoCanvas];
+//                [self.RTCkit enableVideo];
+                [self.RTCkit startPreview];
             }
             else{
                 [self.RTCkit setupRemoteVideo:videoCanvas];
             }
             [self.roomSeatsViewArray setObject:renderView forKey:seatModel.id];
         }
-        
     }
     [self.personCollectionView reloadData];
 }
@@ -102,7 +103,9 @@
                 videoCanvas.view = renderView;
                 videoCanvas.renderMode = AgoraVideoRenderModeHidden;
                 if ([model.id isEqual:VLUserCenter.user.id]) {
+//                    [self.RTCkit enableVideo];
                     [self.RTCkit setupLocalVideo:videoCanvas];
+                    [self.RTCkit startPreview];
                 }
                 else{
                     [self.RTCkit setupRemoteVideo:videoCanvas];
@@ -113,7 +116,6 @@
                 [self.personCollectionView reloadData];
                 return;
             }
-            
         }
     }
 }
@@ -177,6 +179,7 @@
     }
     if (seatModel.isVideoMuted ==  1) { //开启了视频
         if ([self.roomSeatsViewArray valueForKey:seatModel.id] != nil) {
+            [cell.videoView removeAllSubviews];
             [cell.videoView insertSubview:[self.roomSeatsViewArray valueForKey:seatModel.id] atIndex:0];
         }
     }
