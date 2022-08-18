@@ -202,7 +202,7 @@
 }
 
 - (void)createRandomNumber {
-    int titleValue = arc4random() % 6; //0...5的随机数
+    int titleValue = arc4random() % [self.titlesArray count]; //0...5的随机数
     int bgValue = (arc4random() % 9) + 1; //1...9的随机数
     self.addRoomModel.name = self.titlesArray[titleValue];
     self.addRoomModel.icon = [NSString stringWithFormat:@"%d",bgValue];
@@ -235,7 +235,24 @@
             NSLocalizedString(@"一锤定音", nil),
             NSLocalizedString(@"有酒吗", nil),
             NSLocalizedString(@"早安序曲", nil),
-            NSLocalizedString(@"风情万种的歌房", nil)];
+            NSLocalizedString(@"风情万种的歌房", nil),
+            NSLocalizedString(@"近在远方", nil),
+            NSLocalizedString(@"风中诗", nil),
+            NSLocalizedString(@"那年风月", nil),
+            NSLocalizedString(@"那年风月", nil),
+            NSLocalizedString(@"三万余年", nil),
+            NSLocalizedString(@"七十二街", nil),
+            NSLocalizedString(@"情怀如诗", nil),
+            NSLocalizedString(@"简遇而安", nil),
+            NSLocalizedString(@"十里笙歌", nil),
+            NSLocalizedString(@"回风舞雪", nil),
+            NSLocalizedString(@"梦初醒处", nil),
+            NSLocalizedString(@"别来无恙", nil),
+            NSLocalizedString(@"三里清风", nil),
+            NSLocalizedString(@"烟雨万重", nil),
+            NSLocalizedString(@"水洗晴空", nil),
+            NSLocalizedString(@"轻风淡月", nil),
+        ];
     }
     return _titlesArray;
 }

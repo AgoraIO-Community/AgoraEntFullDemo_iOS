@@ -189,7 +189,8 @@
 }
 
 -(BOOL)checkVerifyCode {
-    if ([_verifyView.verifyCode isEqualToString:@""] || !_verifyView.verifyCode) {
+    
+    if (_verifyView.isVerifyCodeSent == NO || [_verifyView.verifyCode isEqualToString:@""] || !_verifyView.verifyCode) {
         [VLToast toast:NSLocalizedString(@"请输入验证码", nil)];
         return NO;
     }

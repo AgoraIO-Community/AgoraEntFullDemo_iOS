@@ -10,7 +10,7 @@
 
 @property(nonatomic, weak) id <VLPopImageVerifyViewDelegate>delegate;
 @property(nonatomic,strong)WMZCodeView *codeView;
-
+@property(nonatomic, assign) int verifyFailTimes;
 @end
 
 @implementation VLPopImageVerifyView
@@ -20,6 +20,7 @@
         self.backgroundColor = UIColorWhite;
         self.delegate = delegate;
         [self setupView];
+        _verifyFailTimes = 0;
     }
     return self;
 }
@@ -56,12 +57,23 @@
                 [weakSelf.delegate slideSuccessAction];
             }
         }
+        else {
+            weakSelf.verifyFailTimes += 1;
+            if(weakSelf.verifyFailTimes >= 3) {
+                weakSelf.verifyFailTimes = 0;
+                [weakSelf changeImage];
+            }
+        }
     }];
     
     [self addSubview:self.codeView];
     
 }
 
+- (void)changeImage
+{
+    [self.codeView refreshAction];
+}
 
 - (void)closeBtnClickEvent{
     if (self.delegate && [self.delegate respondsToSelector:@selector(closeBtnAction)]) {

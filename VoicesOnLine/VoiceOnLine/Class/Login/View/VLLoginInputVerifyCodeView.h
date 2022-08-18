@@ -15,12 +15,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface VLLoginInputVerifyCodeView : VLBaseView
 
-@property (nonatomic, weak) id <VLLoginInputVerifyCodeViewDelegate> delegate;
+@property(nonatomic, weak) id<VLLoginInputVerifyCodeViewDelegate> delegate;
 
-@property (nonatomic, copy, readonly) NSString *verifyCode;
+@property(nonatomic, copy, readonly) NSString *verifyCode;
 
--(void)startTime:(UIButton *)sender;
- 
+@property(nonatomic, assign) BOOL isVerifyCodeSent;
+
+- (void)startTime:(UIButton *)sender;
+
 @end
 
 NS_ASSUME_NONNULL_END

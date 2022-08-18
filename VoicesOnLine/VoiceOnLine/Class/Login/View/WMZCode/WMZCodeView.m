@@ -185,6 +185,7 @@
         }else{
             [self.layer addAnimation:failAnimal() forKey:@"failAnimal"];
             [self defaultSlider];
+            [self failShow];
         }
     }else if (phase == UITouchPhaseMoved){
         if (slider.value>self.width-margin*2-codeSize) {
@@ -277,6 +278,18 @@ static inline CABasicAnimation *failAnimal(){
         });
     });
    
+}
+
+- (void)failShow
+{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        __weak __typeof(self)weakSelf = self;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (weakSelf.block) {
+                weakSelf.block(NO);
+            }
+        });
+    });
 }
 
 //获取当前VC

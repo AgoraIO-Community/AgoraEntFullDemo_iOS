@@ -27,7 +27,7 @@
 - (instancetype)initWithFrame:(CGRect)frame withRooNo:(NSString *)roomNo ifChorus:(BOOL)ifChorus {
     if (self = [super initWithFrame:frame]) {
         self.backgroundColor = UIColorMakeWithHex(@"#152164");
-        self.page = 0;
+        self.page = 1;
         self.roomNo = roomNo;
         self.ifChorus = ifChorus;
         [self setupView];
@@ -60,7 +60,7 @@
 
 - (void)loadDatasWithIndex:(NSInteger)pageType ifRefresh:(BOOL)ifRefresh{
     self.pageType = pageType;
-    self.page = ifRefresh ? 0 : self.page;
+    self.page = ifRefresh ? 1 : self.page;
     NSDictionary *param = @{
         @"roomNo" :self.roomNo
     };
@@ -70,7 +70,7 @@
             self.selSongsArray = [VLRoomSelSongModel vj_modelArrayWithJson:response.data];
             NSDictionary *param = @{
                 @"type":@(pageType),
-                @"size":@(5),
+                @"size":@(20),
                 @"current":@(self.page)
             };
             
@@ -145,13 +145,18 @@
 }
 
 - (void)dianGeWithModel:(VLSongItmModel*)model {
+    if(model == nil || model.songNo == nil || model.songName == nil ) {
+        [VLToast toast:NSLocalizedString(@"点歌失败，请重试", nil)];
+        return;
+    }
+    
     model.ifChorus = self.ifChorus;
     NSDictionary *param = @{
         @"isChorus" : @(self.ifChorus),
         @"roomNo": self.roomNo,
         @"songName":model.songName,
         @"songNo":model.songNo,
-        @"songUrl":model.songUrl,
+//        @"songUrl":model.songUrl,
         @"userNo":VLUserCenter.user.userNo
     };
     [VLAPIRequest getRequestURL:kURLChooseSong parameter:param showHUD:NO success:^(VLResponseDataModel * _Nonnull response) {

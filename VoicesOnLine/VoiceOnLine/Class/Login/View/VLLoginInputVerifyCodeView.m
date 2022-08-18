@@ -20,6 +20,8 @@
     if (self = [super init]) {
         [self initSubViews];
         [self addSubViewConstraints];
+        
+        _isVerifyCodeSent = NO;
     }
     return self;
 }
@@ -67,6 +69,7 @@
 - (void)buttonClick:(UIButton *)button {
     if ([self.delegate respondsToSelector:@selector(verifyCodeViewDidClickSendVerifyCode:)]) {
         [self.delegate verifyCodeViewDidClickSendVerifyCode:button];
+        _isVerifyCodeSent = YES;
     }
 }
 

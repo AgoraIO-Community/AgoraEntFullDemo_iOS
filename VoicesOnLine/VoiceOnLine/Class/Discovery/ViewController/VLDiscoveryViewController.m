@@ -24,6 +24,8 @@
 - (void)setUpUI {
     self.view.backgroundColor = UIColorMakeWithHex(@"#F7FAFE");
     WKWebViewConfiguration * configuration = [[WKWebViewConfiguration alloc]init];
+    configuration.allowsInlineMediaPlayback = YES;
+    configuration.mediaTypesRequiringUserActionForPlayback = WKAudiovisualMediaTypeAll;
     CGFloat y = IPHONE_X ? 15 : 0;
     const int clear_cut = 10;
     self.webViewWK = [[WKWebView alloc]initWithFrame:CGRectMake(0, kStatusBarHeight - y + clear_cut, SCREEN_WIDTH, SCREEN_HEIGHT - kSafeAreaBottomHeight - y + clear_cut) configuration:configuration];

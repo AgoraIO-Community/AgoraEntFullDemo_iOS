@@ -103,7 +103,7 @@
     [self addSubview:self.noBodyOnLineView];
     
     self.lrcView.config = self.config;
-    [self setPlayerViewsHidden:YES];
+    [self setPlayerViewsHidden:YES nextButtonHidden:YES];
 }
 
 #pragma mark - public
@@ -159,16 +159,20 @@
 
 - (void)configLrcViewUIWithCurrentSong:(VLRoomSelSongModel *)song {
     // 是自己点的歌曲
-    if (song.isOwnSong || VLUserCenter.user.ifMaster) {
-        [self setPlayerViewsHidden:NO];
-    } else {
-        [self setPlayerViewsHidden:YES];
+    if (song.isOwnSong) {
+        [self setPlayerViewsHidden:NO nextButtonHidden:NO];
+    }
+    else if(VLUserCenter.user.ifMaster) {
+        [self setPlayerViewsHidden:YES nextButtonHidden:NO];
+    }
+    else {
+        [self setPlayerViewsHidden:YES nextButtonHidden:YES];
     }
 }
 
-- (void)setPlayerViewsHidden:(BOOL)hidden {
+- (void)setPlayerViewsHidden:(BOOL)hidden nextButtonHidden:(BOOL)nextButtonHidden{
     self.pauseBtn.hidden = hidden;
-    self.nextButton.hidden = hidden;
+    self.nextButton.hidden = nextButtonHidden;
     self.originBtn.hidden = hidden;
     self.subtitleBtn.hidden = hidden;
 }
@@ -340,6 +344,15 @@
 - (void)originClick:(UIButton *)button {
     button.selected = !button.selected;
     VLKTVMVViewActionType type = button.selected ? VLKTVMVViewActionTypeSingOrigin : VLKTVMVViewActionTypeSingAcc;
+    if (button.selected) {
+        [self.originBtn setTitle:NSLocalizedString(@"原唱", nil) forState:UIControlStateNormal];
+        [self.originBtn setTitle:NSLocalizedString(@"原唱", nil) forState:UIControlStateSelected];
+    }
+    else {
+        [self.originBtn setTitle:NSLocalizedString(@"伴奏", nil) forState:UIControlStateNormal];
+        [self.originBtn setTitle:NSLocalizedString(@"伴奏", nil) forState:UIControlStateSelected];
+    }
+    
     if ([self.delegate respondsToSelector:@selector(ktvMVViewDidClick:)]) {
         [self.delegate ktvMVViewDidClick:type];
     }
@@ -542,7 +555,7 @@
         _originBtn.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
         [_originBtn setTitleColor:UIColorMakeWithHex(@"#979CBB") forState:UIControlStateNormal];
         _originBtn.titleLabel.font = UIFontMake(10.0);
-        [_originBtn setImage:UIImageMake(@"ktv_origin_playOff") forState:UIControlStateNormal];
+        [_originBtn setImage:UIImageMake(@"ktv_origin_playOn") forState:UIControlStateNormal];
         [_originBtn setImage:UIImageMake(@"ktv_origin_playOn") forState:UIControlStateSelected];
         _originBtn.selected = YES;
         [_originBtn addTarget:self action:@selector(originClick:) forControlEvents:UIControlEventTouchUpInside];
