@@ -89,7 +89,7 @@
     
     VLDiscoveryViewController *discoveryVC = [[VLDiscoveryViewController alloc] init];
     discoveryVC.hidesBottomBarWhenPushed = false;
-    BaseNavigationController *hairStyleNavigationController = [[BaseNavigationController alloc]
+    BaseNavigationController *discoveryNavigationController = [[BaseNavigationController alloc]
                                                   initWithRootViewController:discoveryVC];
 
     VLMineViewController *mineViewController = [[VLMineViewController alloc] init];
@@ -99,7 +99,7 @@
 
    NSArray *viewControllers = @[
                                    homeNavigationController,
-                                   hairStyleNavigationController,
+                                   discoveryNavigationController,
                                    mineNavigationController,
                                 ];
    return viewControllers;
@@ -111,7 +111,7 @@
                                                 CYLTabBarItemImage : @"Tab_home_normal",
                                                 CYLTabBarItemSelectedImage : @"Tab_home_sel",
                                                 };
-   NSDictionary *hairStyleTabBarItemsAttributes = @{
+   NSDictionary *discoveryTabBarItemsAttributes = @{
                                                  CYLTabBarItemTitle : NSLocalizedString(@"发现", nil),
                                                  CYLTabBarItemImage : @"Tab_discovery_normal",
                                                  CYLTabBarItemSelectedImage : @"Tab_discovery_sel",
@@ -126,7 +126,7 @@
 
    NSArray *tabBarItemsAttributes = @[
                                        homeTabBarItemsAttributes,
-                                       hairStyleTabBarItemsAttributes,
+                                       discoveryTabBarItemsAttributes,
                                        mineTabBarItemsAttributes,
                                       ];
    return tabBarItemsAttributes;

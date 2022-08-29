@@ -79,6 +79,20 @@
     self.singingBtn.backgroundColor = UIColorMakeWithRGBA(0, 0, 0, 0.5);
     self.singingBtn.alpha = 0.6;
     [self.contentView addSubview:self.singingBtn];
+
+    self.joinChorusBtn = [[QMUIButton alloc] qmui_initWithImage:UIImageMake(@"ktv_seatsinging_icon") title:NSLocalizedString(@"合唱", nil)];
+    self.joinChorusBtn.frame = CGRectMake((self.width-36)*0.5, self.nickNameLabel.bottom+2, 36, 12);
+    self.joinChorusBtn.layer.cornerRadius = 6;
+    self.joinChorusBtn.layer.masksToBounds = YES;
+    self.joinChorusBtn.imagePosition = QMUIButtonImagePositionLeft;
+    self.joinChorusBtn.spacingBetweenImageAndTitle = 2;
+    self.joinChorusBtn.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
+    [self.joinChorusBtn setTitleColor:UIColorMakeWithHex(@"#FFFFFF") forState:UIControlStateNormal];
+    self.joinChorusBtn.titleLabel.font = UIFontMake(8);
+    self.joinChorusBtn.userInteractionEnabled = NO;
+    self.joinChorusBtn.backgroundColor = UIColorMakeWithRGBA(0, 0, 0, 0.5);
+    self.joinChorusBtn.alpha = 0.6;
+    [self.contentView addSubview:self.joinChorusBtn];
 }
 
 @end

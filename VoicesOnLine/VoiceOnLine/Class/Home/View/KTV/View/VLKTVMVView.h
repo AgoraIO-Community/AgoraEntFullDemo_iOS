@@ -16,7 +16,8 @@ typedef enum : NSUInteger {
     VLKTVMVViewActionTypeMVPause,   // parse
     VLKTVMVViewActionTypeMVNext,     // 播放下一首
     VLKTVMVViewActionTypeSingOrigin, //原唱
-    VLKTVMVViewActionTypeSingAcc   // 伴奏
+    VLKTVMVViewActionTypeSingAcc,   // 伴奏
+    VLKTVMVViewActionTypeExit
     
 } VLKTVMVViewActionType;
 
@@ -98,6 +99,10 @@ typedef enum : NSUInteger {
 - (void)cleanMusicText;
 - (int)getSongScore;
 - (void)setSongScore:(int)score;
+
+- (void)validateSingType;
+
+- (void)setPlayerViewsHidden:(BOOL)hidden nextButtonHidden:(BOOL)nextButtonHidden;
 
 #pragma mark - 歌词相关
 

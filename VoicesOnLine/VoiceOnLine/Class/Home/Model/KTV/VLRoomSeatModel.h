@@ -30,6 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 ///新增, 判断当前歌曲是否是自己点的
 @property (nonatomic, assign) BOOL ifSelTheSingSong;
 
+@property (nonatomic, assign) BOOL ifJoinedChorus;
+
 /// 重置下麦模型
 - (void)resetLeaveSeat;
 

@@ -40,10 +40,8 @@ static NSString * const kURLUpdataRoom = @"/roomInfo/updateRoom";   //更新房�
 static NSString * const kURLGetRTMToken = @"/users/getToken"; //获取RTM Token
 
 #pragma mark - H5相关
-static NSString * const kURLPathH5UserAgreement = @"https://www.agora.io/cn/about-us/";
-static NSString * const kURLPathH5Privacy = @"https://www.agora.io/cn/about-us/";
+static NSString * const kURLPathH5UserAgreement = @"https://beidou-releases.oss-cn-zhangjiakou.aliyuncs.com/agora/static/user_agreement.html";
+static NSString * const kURLPathH5Privacy = @"https://beidou-releases.oss-cn-zhangjiakou.aliyuncs.com/agora/static/privacy_policy.html";
 static NSString * const kURLPathH5AboutUS = @"https://www.agora.io/cn/about-us/";
-
-
 
 #endif /* VLURLPathConfig_h */

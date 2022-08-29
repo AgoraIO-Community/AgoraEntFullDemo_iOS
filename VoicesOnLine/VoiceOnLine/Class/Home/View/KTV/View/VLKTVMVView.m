@@ -32,7 +32,7 @@
 @property (nonatomic, strong) NSTimer *robMicroPhoneTimer; //抢麦倒计时
 
 @property (nonatomic, strong) AgoraLrcScoreConfigModel *config;
-
+@property (nonatomic, assign) VLKTVMVViewActionType singType;
 @end
 
 @implementation VLKTVMVView
@@ -41,6 +41,7 @@
     if (self = [super initWithFrame:frame]) {
         self.delegate = delegate;
         [self setupView];
+        self.singType = VLKTVMVViewActionTypeSingOrigin;
     }
     return self;
 }
@@ -343,7 +344,7 @@
 
 - (void)originClick:(UIButton *)button {
     button.selected = !button.selected;
-    VLKTVMVViewActionType type = button.selected ? VLKTVMVViewActionTypeSingOrigin : VLKTVMVViewActionTypeSingAcc;
+    self.singType = button.selected ? VLKTVMVViewActionTypeSingOrigin : VLKTVMVViewActionTypeSingAcc;
     if (button.selected) {
         [self.originBtn setTitle:NSLocalizedString(@"原唱", nil) forState:UIControlStateNormal];
         [self.originBtn setTitle:NSLocalizedString(@"原唱", nil) forState:UIControlStateSelected];
@@ -353,11 +354,15 @@
         [self.originBtn setTitle:NSLocalizedString(@"伴奏", nil) forState:UIControlStateSelected];
     }
     
-    if ([self.delegate respondsToSelector:@selector(ktvMVViewDidClick:)]) {
-        [self.delegate ktvMVViewDidClick:type];
-    }
+    [self validateSingType];
 }
 
+- (void)validateSingType
+{
+    if ([self.delegate respondsToSelector:@selector(ktvMVViewDidClick:)]) {
+        [self.delegate ktvMVViewDidClick:self.singType];
+    }
+}
 
 #pragma mark - AgoraLrcDownloadDelegate
 

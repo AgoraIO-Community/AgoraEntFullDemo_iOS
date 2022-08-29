@@ -174,8 +174,16 @@
 //        NSLog(@"不显示：：%@", seatModel.name);
         cell.muteImgView.hidden = NO;
     }
+    
+    if(seatModel.ifJoinedChorus)
+        cell.joinChorusBtn.hidden = NO;
+    else
+        cell.joinChorusBtn.hidden = YES;
+    
     if (seatModel.id == nil) {
         cell.muteImgView.hidden = YES;
+        cell.singingBtn.hidden = YES;
+        cell.joinChorusBtn.hidden = YES;
     }
     if (seatModel.isVideoMuted ==  1) { //开启了视频
         if ([self.roomSeatsViewArray valueForKey:seatModel.id] != nil) {
@@ -245,11 +253,13 @@
             }else{
                 seatModel.ifSelTheSingSong = NO;
             }
+            seatModel.ifJoinedChorus = NO;
         }
         [self.personCollectionView reloadData];
     }else{
         for (VLRoomSeatModel *seatModel in self.roomSeatsArray) {
             seatModel.ifSelTheSingSong = NO;
+            seatModel.ifJoinedChorus = NO;
         }
         [self.personCollectionView reloadData];
     }

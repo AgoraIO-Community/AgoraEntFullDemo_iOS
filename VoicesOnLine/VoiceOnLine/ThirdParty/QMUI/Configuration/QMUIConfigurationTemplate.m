@@ -246,9 +246,9 @@
     QMUICMI.windowLevelQMUIConsole = 1;                                         // UIWindowLevelQMUIConsole : QMUIConsole 内部的 UIWindow 的 windowLevel
     
     #pragma mark - QMUILog
-    QMUICMI.shouldPrintDefaultLog = YES;                                        // ShouldPrintDefaultLog : 是否允许输出 QMUILogLevelDefault 级别的 log
-    QMUICMI.shouldPrintInfoLog = YES;                                           // ShouldPrintInfoLog : 是否允许输出 QMUILogLevelInfo 级别的 log
-    QMUICMI.shouldPrintWarnLog = YES;                                           // ShouldPrintInfoLog : 是否允许输出 QMUILogLevelWarn 级别的 log
+    QMUICMI.shouldPrintDefaultLog = NO;                                        // ShouldPrintDefaultLog : 是否允许输出 QMUILogLevelDefault 级别的 log
+    QMUICMI.shouldPrintInfoLog = NO;                                           // ShouldPrintInfoLog : 是否允许输出 QMUILogLevelInfo 级别的 log
+    QMUICMI.shouldPrintWarnLog = NO;                                           // ShouldPrintInfoLog : 是否允许输出 QMUILogLevelWarn 级别的 log
     
     #pragma mark - QMUIBadge
     

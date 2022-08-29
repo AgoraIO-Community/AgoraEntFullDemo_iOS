@@ -80,17 +80,19 @@
                     }else{
                         VLUserCenter.user.ifMaster = NO;
                     }
-                    //登录RTM
-//                    [AgoraRtm setCurrent:VLUserCenter.user.name];
-                    [AgoraRtm.kit loginByToken:nil user:VLUserCenter.user.userNo completion:^(AgoraRtmLoginErrorCode errorCode) {
+                    
+                    VLUserCenter.user.agoraRTCToken = response.data[@"agoraRTCToken"];
+                    VLUserCenter.user.agoraRTMToken = response.data[@"agoraRTMToken"];
+                    VLLog(@"Agora - RTCToken: %@, RTMToken: %@, UID: %@, roomNo: %@", VLUserCenter.user.agoraRTCToken, VLUserCenter.user.agoraRTMToken, VLUserCenter.user.id, param[@"roomNo"]);
+                    [AgoraRtm.kit loginByToken:VLUserCenter.user.agoraRTMToken user:VLUserCenter.user.id completion:^(AgoraRtmLoginErrorCode errorCode) {
                         if (!(errorCode == AgoraRtmLoginErrorOk || errorCode == AgoraRtmLoginErrorAlreadyLogin)) {
-                            VLLog(@"加入RTM失败");
+                            VLLog(@"Agora - 加入RTM失败");
                             return;
                         }
                         [AgoraRtm setStatus:LoginStatusOnline];
                         //登录RTC
-                        [self.RTCkit joinChannelByToken:AGORA_APP_CERTIFICATE channelId:listModel.roomNo info:nil uid:[VLUserCenter.user.id integerValue] joinSuccess:^(NSString * _Nonnull channel, NSUInteger uid, NSInteger elapsed) {
-                            VLLog(@"加入RTC成功");
+                        [self.RTCkit joinChannelByToken:VLUserCenter.user.agoraRTCToken channelId:listModel.roomNo info:nil uid:[VLUserCenter.user.id integerValue] joinSuccess:^(NSString * _Nonnull channel, NSUInteger uid, NSInteger elapsed) {
+                            VLLog(@"Agora - 加入RTC成功");
                             [self.RTCkit setClientRole:AgoraClientRoleBroadcaster];
                         }];
                         //处理座位信息

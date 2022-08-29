@@ -110,7 +110,7 @@
         .LeeAddAction(^(LEEAction *action) {
             VL(weakSelf);
             action.type = LEEActionTypeCancel;
-            action.title = NSLocalizedString(@"好的", nil);
+            action.title = NSLocalizedString(@"确认", nil);
             action.titleColor = UIColorMakeWithHex(@"#FFFFFF");
             action.backgroundColor = UIColorMakeWithHex(@"#2753FF");
             action.cornerRadius = 20;
@@ -150,9 +150,12 @@
                 VLUserCenter.user.ifMaster = NO;
             }
             listModel.creator = response.data[@"creatorNo"];
+            VLUserCenter.user.agoraRTCToken = response.data[@"agoraRTCToken"];
+            VLUserCenter.user.agoraRTMToken = response.data[@"agoraRTMToken"];
+            
 //            [AgoraRtm setCurrent:VLUserCenter.user.name];
             //登录RTM
-            [AgoraRtm.kit loginByToken:nil user:VLUserCenter.user.userNo completion:^(AgoraRtmLoginErrorCode errorCode) {
+            [AgoraRtm.kit loginByToken:VLUserCenter.user.agoraRTMToken user:VLUserCenter.user.id completion:^(AgoraRtmLoginErrorCode errorCode) {
                 if (!(errorCode == AgoraRtmLoginErrorOk || errorCode == AgoraRtmLoginErrorAlreadyLogin)) {
                     VLLog(@"加入RTM失败");
                     return;

@@ -46,7 +46,7 @@
 - (void)showAlertPrivacyView
 {
     if(_policyAgreed == NO) {
-        [self alertPrivacyAlertView];
+        [self alertPrivacyAlertView:0];
     }
 }
 
@@ -95,20 +95,21 @@
     }];
 }
 
-- (void)alertPrivacyAlertView {
+- (void)alertPrivacyAlertView:(int)pass {
     kWeakSelf(self)
     [LEEAlert alert].config
     .LeeMaxWidth(300)
     .LeeMaxHeight(380)
     .LeeHeaderColor([UIColor whiteColor])
     .LeeAddTitle(^(UILabel * _Nonnull label) {
-        label.text = NSLocalizedString(@"欢迎体验声网服务", nil);
+        label.text = NSLocalizedString(@"个人信息保护指引", nil);
         label.textColor = UIColorMakeWithHex(@"#040925");
         label.font = VLUIFontMake(16);
     })
     .LeeItemInsets(UIEdgeInsetsMake(20, 10, 10, 0))
     .LeeAddCustomView(^(LEECustomView *custom) {
         kStrongSelf(self)
+        self.privacyCustomView = [self getPrivacyCustomView:pass];
         custom.view = self.privacyCustomView;
         custom.view.superview.layer.masksToBounds = NO;
         custom.positionType = LEECustomViewPositionTypeCenter;
@@ -138,13 +139,19 @@
 - (void)privacyCustomViewDidClick:(VLPrivacyClickType)type {
     switch (type) {
         case VLPrivacyClickTypeAgree:
-            self.agreeButton.selected = YES;
-            _policyAgreed = YES;
+            self.agreeButton.selected = NO;
+            _policyAgreed = NO;
             [self closePrivaxyAlertView];
             break;
         case VLPrivacyClickTypeDisagree:
             self.agreeButton.selected = NO;
-            exit(0);
+            if(self.privacyCustomView.pass == 0) {
+                self.privacyCustomView = nil;
+                [self alertPrivacyAlertView:1];
+            }
+            else if(self.privacyCustomView.pass != 0) {
+                exit(0);
+            }
             break;
         case VLPrivacyClickTypePrivacy:
             [self pushToWebView:kURLPathH5Privacy];
@@ -378,10 +385,15 @@
     return _loginButton;
 }
 
-- (VLPrivacyCustomView *)privacyCustomView {
+- (VLPrivacyCustomView *)getPrivacyCustomView:(int)pass {
     if (!_privacyCustomView) {
-        _privacyCustomView = [[VLPrivacyCustomView alloc] init];
-        _privacyCustomView.frame = CGRectMake(0, 0, 250, 260);
+        _privacyCustomView = [[VLPrivacyCustomView alloc] initWithPass:pass];
+        if(pass == 0) {
+            _privacyCustomView.frame = CGRectMake(0, 0, 250, 260);
+        }
+        else {
+            _privacyCustomView.frame = CGRectMake(0, 0, 250, 100);
+        }
         _privacyCustomView.backgroundColor = [UIColor whiteColor];
         _privacyCustomView.delegate = self;
     }

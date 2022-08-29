@@ -140,6 +140,7 @@ static NSInteger streamId = -1;
 
 - (void)playMusic:(NSInteger )songCode {
 //    [self.rtcMediaPlayer open:songCode startPos:0];
+    VLLog(@"Agora - MediaPlayer playing %ld", songCode);
     [self.rtcMediaPlayer openMediaWithSongCode:songCode  type:AgoraMusicContentCenterMediaTypeAudio resolution:nil startPos:0];
 }
 
@@ -178,7 +179,7 @@ static NSInteger streamId = -1;
 }
 - (void)rtcEngine:(AgoraRtcEngineKit *)engine reportAudioVolumeIndicationOfSpeakers:(NSArray<AgoraRtcAudioVolumeInfo *> *)speakers totalVolume:(NSInteger)totalVolume {
         if (speakers.count) {
-            if([self ifIAmMainSinger]) {
+            if([self ifMainSinger:VLUserCenter.user.userNo]) {
                 double voicePitch = (double)totalVolume;
                 [self.MVView setVoicePitch:@[@(voicePitch)]];
                 NSDictionary *dict = @{
@@ -214,7 +215,7 @@ static NSInteger streamId = -1;
         } else if (state == AgoraMediaPlayerStatePlayBackAllLoopsCompleted) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 VLLog(@"Playback all loop completed");
-                [self playNextSong];
+                [self playNextSong:0];
             });
         } else if (state == AgoraMediaPlayerStateStopped) {
         }
@@ -403,47 +404,45 @@ static NSInteger streamId = -1;
 //    [self.RTCkit startPreview];
     [self.RTCkit enableAudio];
     if (ifRequestOnSeat) {
-        [self.RTCkit muteLocalVideoStream:NO];
-        [self.RTCkit muteLocalAudioStream:NO];
-        [self.RTCkit setClientRole:AgoraClientRoleBroadcaster];
+        [self setSelfBroadcaster];
     }else{
-        [self.RTCkit muteLocalVideoStream:YES];
-        [self.RTCkit muteLocalAudioStream:YES];
-        [self.RTCkit setClientRole:AgoraClientRoleAudience];
+        [self setSelfAudience];
 
     }
     AgoraVideoEncoderConfiguration *encoderConfiguration = [[AgoraVideoEncoderConfiguration alloc] initWithSize:CGSizeMake(100, 100) frameRate:AgoraVideoFrameRateFps7 bitrate:20 orientationMode:AgoraVideoOutputOrientationModeFixedLandscape mirrorMode:AgoraVideoMirrorModeAuto];
     [self.RTCkit setVideoEncoderConfiguration:encoderConfiguration];
-    [self.RTCkit joinChannelByToken:@"" channelId:self.roomModel.roomNo info:nil uid:[VLUserCenter.user.id integerValue] joinSuccess:^(NSString * _Nonnull channel, NSUInteger uid, NSInteger elapsed) {
-        VLLog(@"加入RTC成功");
+    VLLog(@"Agora - joining RTC channel with token: %@, for roomNo: %@, with uid: %@", VLUserCenter.user.agoraRTCToken, self.roomModel.roomNo, VLUserCenter.user.id);
+    [self.RTCkit joinChannelByToken:VLUserCenter.user.agoraRTCToken channelId:self.roomModel.roomNo info:nil uid:[VLUserCenter.user.id integerValue] joinSuccess:^(NSString * _Nonnull channel, NSUInteger uid, NSInteger elapsed) {
+        VLLog(@"Agora - 加入RTC成功");
        
         [self setUpUI];
         [AgoraRtm updateDelegate:self];
     }];
     [self.RTCkit setEnableSpeakerphone:YES];
     
-    NSDictionary *param = @{
-        @"userId": VLUserCenter.user.id
-    };
-    [VLAPIRequest getRequestURL:kURLGetRTMToken parameter:param showHUD:YES success:^(VLResponseDataModel * _Nonnull response) {
-        if (response.code == 0) {
-            VLLog(@"RTM Token: %@ for user: %@", response.data[@"token"], VLUserCenter.user.id);
+    VLLog(@"Agora - Creating MCC with RTM token: %@", VLUserCenter.user.agoraRTMToken);
+    AgoraMusicContentCenterConfig *contentCenterConfiguration = [[AgoraMusicContentCenterConfig alloc] init];
+    contentCenterConfiguration.rtcEngine = self.RTCkit;
+    contentCenterConfiguration.appId = AGORA_APP_ID;
+    contentCenterConfiguration.mccUid = [VLUserCenter.user.id integerValue];
+    contentCenterConfiguration.rtmToken = VLUserCenter.user.agoraRTMToken;
 
-            AgoraMusicContentCenterConfig *contentCenterConfiguration = [[AgoraMusicContentCenterConfig alloc] init];
-            contentCenterConfiguration.rtcEngine = self.RTCkit;
-            contentCenterConfiguration.appId = AGORA_APP_ID;
-            contentCenterConfiguration.mccUid = [VLUserCenter.user.id integerValue];
-            contentCenterConfiguration.rtmToken = response.data[@"token"];
-
-            self.AgoraMcc = [AgoraMusicContentCenter sharedContentCenterWithConfig:contentCenterConfiguration];
-            [self.AgoraMcc registerEventHandler:self];
-        }
-    } failure:^(NSError * _Nullable error) {
-        
-    }];
-    
+    self.AgoraMcc = [AgoraMusicContentCenter sharedContentCenterWithConfig:contentCenterConfiguration];
+    [self.AgoraMcc registerEventHandler:self];
     
     [UIApplication sharedApplication].idleTimerDisabled = YES;
+}
+
+- (void)setSelfAudience {
+    [self.RTCkit muteLocalVideoStream:YES];
+    [self.RTCkit muteLocalAudioStream:YES];
+    [self.RTCkit setClientRole:AgoraClientRoleAudience];
+}
+
+- (void)setSelfBroadcaster {
+    [self.RTCkit muteLocalVideoStream:NO];
+    [self.RTCkit muteLocalAudioStream:NO];
+    [self.RTCkit setClientRole:AgoraClientRoleBroadcaster];
 }
 
 - (void)leaveChannel {
@@ -521,7 +520,6 @@ static NSInteger streamId = -1;
 
 #pragma mark -- delegate Event
 - (void)closeBtnAction {
-/// TODO:统一一个退出方法，退出时候调用 [self destroyMediaPlayer] ,否则控制器无法正常销毁
     if (VLUserCenter.user.ifMaster) { //自己是房主关闭房间
         [LEEAlert alert].config
         .LeeAddTitle(^(UILabel *label) {
@@ -566,11 +564,51 @@ static NSInteger streamId = -1;
         })
         .LeeShow();
     }else{
-        VLRoomSelSongModel *song = self.selSongsArray.count ? self.selSongsArray.firstObject : nil;
-        if(song != nil && song.isOwnSong) {
-            [self ktvMVViewDidClick:VLKTVMVViewActionTypeMVNext];
-        }
-        [self otherPersonExitRoom];
+        [LEEAlert alert].config
+        .LeeAddTitle(^(UILabel *label) {
+            label.text = NSLocalizedString(@"退出房间", nil);
+            label.textColor = UIColorMakeWithHex(@"#040925");
+            label.font = UIFontBoldMake(16);
+        })
+        .LeeAddContent(^(UILabel *label) {
+            label.text = NSLocalizedString(@"确定退出房间？", nil);
+            label.textColor = UIColorMakeWithHex(@"#6C7192");
+            label.font = UIFontMake(14);
+            
+        })
+        .LeeAddAction(^(LEEAction *action) {
+            action.type = LEEActionTypeCancel;
+            action.title = NSLocalizedString(@"取消", nil);
+            action.titleColor = UIColorMakeWithHex(@"#000000");
+            action.backgroundColor = UIColorMakeWithHex(@"#EFF4FF");
+            action.cornerRadius = 20;
+            action.height = 40;
+            action.font = UIFontBoldMake(16);
+            action.insets = UIEdgeInsetsMake(10, 20, 20, 20);
+            action.borderColor = UIColorMakeWithHex(@"#EFF4FF");
+            action.clickBlock = ^{
+                // 取消点击事件Block
+            };
+        })
+        .LeeAddAction(^(LEEAction *action) {
+            VL(weakSelf);
+            action.type = LEEActionTypeCancel;
+            action.title = NSLocalizedString(@"确定", nil);
+            action.titleColor = UIColorMakeWithHex(@"#FFFFFF");
+            action.backgroundColor = UIColorMakeWithHex(@"#2753FF");
+            action.cornerRadius = 20;
+            action.height = 40;
+            action.insets = UIEdgeInsetsMake(10, 20, 20, 20);
+            action.font = UIFontBoldMake(16);
+            action.clickBlock = ^{
+                VLRoomSelSongModel *song = self.selSongsArray.count ? self.selSongsArray.firstObject : nil;
+                if(song != nil && song.isOwnSong) {
+                    [weakSelf ktvMVViewDidClick:VLKTVMVViewActionTypeExit];
+                }
+                [weakSelf otherPersonExitRoom];
+            };
+        })
+        .LeeShow();
     }
 }
 
@@ -714,6 +752,7 @@ static NSInteger streamId = -1;
         option.publishMediaPlayerAudioTrack = [AgoraRtcBoolOptional of:YES];
         [self.RTCkit updateChannelWithMediaOptions:option];
     }
+    [self.MVView validateSingType];
 }
 
 - (void)bottomSetVideoMute:(NSInteger)ifOpen{
@@ -903,13 +942,21 @@ static NSInteger streamId = -1;
                     //房主自己手动更新视图
                     if ([seatModel.userNo isEqualToString:VLUserCenter.user.userNo]) {//如果自己主动下麦
                         [self.MVView updateUIWithUserOnSeat:NO song:self.selSongsArray.firstObject];
+                        [self.MVView setPlayerViewsHidden:YES nextButtonHidden:YES];
                         self.bottomView.hidden = YES;
                         self.requestOnLineView.hidden = NO;
+                        if([self ifMainSinger:VLUserCenter.user.userNo]) {
+                            [self playNextSong:0];
+                        }
+                        [self setSelfAudience];
                     }
+                    else if([self ifIAmRoomMaster] && [self ifMainSinger:seatModel.userNo]==YES) {
+                        [self playNextSong:1];
+                    }
+                    
                     for (VLRoomSeatModel *model in self.seatsArray) {
                         if (model.onSeat == seatModel.onSeat) {
                             [model resetLeaveSeat];
-//                            [self disableTransmission];
                         }
                     }
                     [self.roomPersonView setSeatsArray:self.seatsArray];
@@ -1053,9 +1100,14 @@ static NSInteger streamId = -1;
         VLRoomSelSongModel *model = self.selSongsArray.firstObject;
         if ([model.userNo isEqualToString:VLUserCenter.user.userNo]) {
             AgoraRtcChannelMediaOptions *option = [[AgoraRtcChannelMediaOptions alloc]init];
-            [option setPublishAudioTrack:[AgoraRtcBoolOptional of:YES]];
-            [option setPublishMediaPlayerId:[AgoraRtcIntOptional of:[self.rtcMediaPlayer getMediaPlayerId]]];
+            if([self.bottomView isAudioMute]) {
+                [option setPublishAudioTrack:[AgoraRtcBoolOptional of:NO]];
+            }
+            else {
+                [option setPublishAudioTrack:[AgoraRtcBoolOptional of:YES]];
+            }
             
+            [option setPublishMediaPlayerId:[AgoraRtcIntOptional of:[self.rtcMediaPlayer getMediaPlayerId]]];
             [option setClientRoleType:[AgoraRtcIntOptional of:AgoraClientRoleBroadcaster]];
             option.publishCameraTrack = [AgoraRtcBoolOptional of:NO];
             option.autoSubscribeAudio = [AgoraRtcBoolOptional of:YES];
@@ -1115,10 +1167,56 @@ static NSInteger streamId = -1;
         //发送暂停的消息
         [self sendPauseOrResumeMessage:0];
     } else if (type == VLKTVMVViewActionTypeMVNext) { //切换
-        if (self.selSongsArray.count >= 1) {
-            [self playNextSong];
-            VLLog(@"---Change song---");
-        }
+        [LEEAlert alert].config
+        .LeeAddTitle(^(UILabel *label) {
+            label.text = NSLocalizedString(@"切换歌曲", nil);
+            label.textColor = UIColorMakeWithHex(@"#040925");
+            label.font = UIFontBoldMake(16);
+        })
+        .LeeAddContent(^(UILabel *label) {
+            label.text = NSLocalizedString(@"切换下一首歌曲？", nil);
+            label.textColor = UIColorMakeWithHex(@"#6C7192");
+            label.font = UIFontMake(14);
+            
+        })
+        .LeeAddAction(^(LEEAction *action) {
+            action.type = LEEActionTypeCancel;
+            action.title = NSLocalizedString(@"取消", nil);
+            action.titleColor = UIColorMakeWithHex(@"#000000");
+            action.backgroundColor = UIColorMakeWithHex(@"#EFF4FF");
+            action.cornerRadius = 20;
+            action.height = 40;
+            action.font = UIFontBoldMake(16);
+            action.insets = UIEdgeInsetsMake(10, 20, 20, 20);
+            action.borderColor = UIColorMakeWithHex(@"#EFF4FF");
+            action.clickBlock = ^{
+                // 取消点击事件Block
+            };
+        })
+        .LeeAddAction(^(LEEAction *action) {
+            VL(weakSelf);
+            action.type = LEEActionTypeCancel;
+            action.title = NSLocalizedString(@"确定", nil);
+            action.titleColor = UIColorMakeWithHex(@"#FFFFFF");
+            action.backgroundColor = UIColorMakeWithHex(@"#2753FF");
+            action.cornerRadius = 20;
+            action.height = 40;
+            action.insets = UIEdgeInsetsMake(10, 20, 20, 20);
+            action.font = UIFontBoldMake(16);
+            action.clickBlock = ^{
+                if (weakSelf.selSongsArray.count >= 1) {
+                    if([weakSelf ifIAmRoomMaster] && [weakSelf ifMainSinger:VLUserCenter.user.userNo] == NO) {
+                        [weakSelf playNextSong:1];
+                    }
+                    else {
+                        [weakSelf playNextSong:0];
+                    }
+                    
+                    VLLog(@"---Change song---");
+                }
+            };
+        })
+        .LeeShow();
     } else if (type == VLKTVMVViewActionTypeSingOrigin) { // 原唱
         [self.rtcMediaPlayer setAudioDualMonoMode:AgoraAudioDualMonoR];
     } else if (type == VLKTVMVViewActionTypeSingAcc) { // 伴奏
@@ -1126,13 +1224,13 @@ static NSInteger streamId = -1;
     }
 }
 
-- (void)playNextSong {
+- (void)playNextSong:(int)isMasterInterrupt {
     self.currentTime = 0;
     [self.MVView stop];
     [self.MVView reset];
     [self.MVView cleanMusicText];
     [self.rtcMediaPlayer stop];
-    [self deleteSongEvent:self.selSongsArray.firstObject];
+    [self deleteSongEvent:self.selSongsArray.firstObject isMasterInterrupt:isMasterInterrupt];
 }
 
 //合唱的倒计时事件
@@ -1176,21 +1274,33 @@ static NSInteger streamId = -1;
 }
 
 - (void)sendChangeSongMessage {
+    NSString *isMasterInterrupt = nil;
+    if([self ifMainSinger:VLUserCenter.user.userNo] == NO && [self ifIAmRoomMaster]) {
+        isMasterInterrupt = @"1";
+    }
+    else {
+        isMasterInterrupt = @"0";
+    }
     NSDictionary *dict = @{
         @"messageType":@(VLSendMessageTypeChangeSong),
         @"platform":@"1",
-        @"roomNo":self.roomModel.roomNo
+        @"roomNo": self.roomModel.roomNo,
+        @"isMasterInterrupt": isMasterInterrupt
     };
     NSData *messageData = [VLGlobalHelper compactDictionaryToData:dict];
     AgoraRtmRawMessage *roaMessage = [[AgoraRtmRawMessage alloc]initWithRawData:messageData description:@""];
     [self.rtmChannel sendMessage:roaMessage completion:^(AgoraRtmSendChannelMessageErrorCode errorCode) {
         if (errorCode == 0) {
-            VLLog(@"发送切歌的消息");
+            VLLog(@"RTM(SEND) - 发送切歌的消息 - from %@", VLUserCenter.user.userNo);
         }
     }];
 }
 
-- (void)deleteSongEvent:(VLRoomSelSongModel *)model {
+- (void)deleteSongEvent:(VLRoomSelSongModel *)model isMasterInterrupt:(int)isMasterInterrupt {
+    if(model == nil || self.roomModel == nil || self.roomModel.roomNo == nil || model.songNo == nil || model.sort == nil) {
+        return;
+    }
+    
     NSDictionary *param = @{
         @"roomNo" : self.roomModel.roomNo,
         @"songNo": model.songNo,
@@ -1200,7 +1310,7 @@ static NSInteger streamId = -1;
     [VLAPIRequest getRequestURL:kURLDeleteSong parameter:param showHUD:NO success:^(VLResponseDataModel * _Nonnull response) {
         if (response.code == 0) {
             //发送点歌消息
-            if([self ifIAmMainSinger]) {
+            if(([self ifMainSinger:VLUserCenter.user.userNo] && isMasterInterrupt != 1) || ([self ifIAmRoomMaster] && isMasterInterrupt == 1)) {
                 [self sendChangeSongMessage];
             }
             
@@ -1243,8 +1353,10 @@ static NSInteger streamId = -1;
     NSDictionary *dict = @{
         @"messageType":@(VLSendMessageTypeTellSingerSomeBodyJoin),
         @"uid":VLUserCenter.user.id ? VLUserCenter.user.id : @"1",
+        @"bgUid":[NSString stringWithFormat:@"%u", arc4random() % 9999999],
         @"platform":@"1",
-        @"roomNo":self.roomModel.roomNo
+        @"roomNo":self.roomModel.roomNo,
+        @"userNo": VLUserCenter.user.userNo
     };
     NSData *messageData = [VLGlobalHelper compactDictionaryToData:dict];
     AgoraRtmRawMessage *roaMessage = [[AgoraRtmRawMessage alloc]initWithRawData:messageData description:@""];
@@ -1252,17 +1364,41 @@ static NSInteger streamId = -1;
         if (errorCode == 0) {
             VLLog(@"发送加入合唱消息成功");
         }
+        
+        [self setUserJoinChorus:VLUserCenter.user.userNo];
     }];
 }
 
-- (BOOL)ifIAmMainSinger {
+- (void)sendApplySendChorusMessage:(NSString *)singerUserNo {
+    NSDictionary *dict = @{
+        @"messageType":@(VLSendMessageTypeTellJoinUID),
+        @"userNo": singerUserNo,
+        @"name": VLUserCenter.user.name,
+        @"bgUid":[NSString stringWithFormat:@"%u", arc4random() % 9999999],
+        @"platform":@"1",
+        @"roomNo":self.roomModel.roomNo
+    };
+    NSData *messageData = [VLGlobalHelper compactDictionaryToData:dict];
+    AgoraRtmRawMessage *roaMessage = [[AgoraRtmRawMessage alloc]initWithRawData:messageData description:@""];
+    [self.rtmChannel sendMessage:roaMessage completion:^(AgoraRtmSendChannelMessageErrorCode errorCode) {
+        if (errorCode == 0) {
+            VLLog(@"发送通知合唱用户信息成功");
+        }
+    }];
+}
+
+- (BOOL)ifMainSinger:(NSString *)userNo {
     VLRoomSelSongModel *selSongModel = self.selSongsArray.firstObject;
-    if ([selSongModel.userNo isEqualToString:VLUserCenter.user.userNo]) {
+    if ([selSongModel.userNo isEqualToString:userNo]) {
         return YES;
     }
     else {
         return NO;
     }
+}
+
+- (BOOL) ifIAmRoomMaster {
+    return (VLUserCenter.user.ifMaster ? YES : NO);
 }
 
 /// 加入合唱配置
@@ -1281,7 +1417,7 @@ static NSInteger streamId = -1;
             connection.channelId = self.roomModel.roomNo;
             connection.localUid = 0;
 
-            int ret  = [self.RTCkit joinChannelExByToken:nil connection:connection delegate:self mediaOptions:option joinSuccess:nil];
+            int ret  = [self.RTCkit joinChannelExByToken:VLUserCenter.user.agoraRTCToken connection:connection delegate:self mediaOptions:option joinSuccess:nil];
             if (ret == 0) {
                 VLLog(@"成功了!!!!!!!!!!!!!!!!!!!!!!!1");
             }
@@ -1438,6 +1574,8 @@ static NSInteger streamId = -1;
                 [self.MVView updateUIWithUserOnSeat:NO song:self.selSongsArray.firstObject];
                 self.bottomView.hidden = YES;
                 // 取出对应模型、防止数组越界
+                [self setSelfAudience];
+                
                 if (self.seatsArray.count - 1 >= seatModel.onSeat) {
                     // 下麦重置占位模型
                     VLRoomSeatModel *indexSeatModel = self.seatsArray[seatModel.onSeat];
@@ -1472,17 +1610,19 @@ static NSInteger streamId = -1;
                 [self getChoosedSongsList:false];
 //            }
         } else if([dict[@"messageType"] intValue] == VLSendMessageTypeChangeSong) { //切换歌曲
+            NSLog(@"RTM(RECV) - userID: %@, VLUserNo: %@", member.userId, VLUserCenter.user.userNo);
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self playNextSong];
+                [self playNextSong:[dict[@"isMasterInterrupt"] intValue]];
             });
         } else if ([dict[@"messageType"] intValue] == VLSendMessageTypeTellSingerSomeBodyJoin) {//有人加入合唱
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.MVView setJoinInViewHidden];
+                [self setUserJoinChorus:dict[@"userNo"]];
+                [self sendApplySendChorusMessage:dict[@"userNo"]];
                 [self joinChorusConfig];
                 [self playSongWithPlayer:self.rtcMediaPlayer];
                 [self startSinging];
             });
-            
         }else if([dict[@"messageType"] intValue] == VLSendMessageTypeSoloSong){ //独唱
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.MVView setJoinInViewHidden];
@@ -1531,6 +1671,17 @@ static NSInteger streamId = -1;
 }
 - (void)channel:(AgoraRtmChannel * _Nonnull)channel attributeUpdate:(NSArray< AgoraRtmChannelAttribute *> * _Nonnull)attributes {
     NSLog(@"%@",attributes);
+}
+
+- (void)setUserJoinChorus:(NSString *)userNo
+{
+    for (VLRoomSeatModel *seat in self.seatsArray) {
+        if ([seat.userNo isEqualToString:userNo]) {
+            seat.ifJoinedChorus = YES;
+            break;
+        }
+    }
+    [self.roomPersonView setSeatsArray:self.seatsArray];
 }
 
 //用户弹框离开房间
@@ -1655,11 +1806,17 @@ static NSInteger streamId = -1;
                                 model.name = VLUserCenter.user.name;
                                 model.userNo = VLUserCenter.user.userNo;
                                 model.id = VLUserCenter.user.id;
+                                
+                                VLRoomSelSongModel *song = self.selSongsArray.count ? self.selSongsArray.firstObject : nil;
+                                if(song!=nil && song.userNo == VLUserCenter.user.userNo) {
+                                    model.ifSelTheSingSong = YES;
+                                }
                             }
                         }
                         [self.roomPersonView setSeatsArray:self.seatsArray];
                         self.requestOnLineView.hidden = YES;
                         self.bottomView.hidden = NO;
+                        [self.bottomView resetBtnStatus];
                         [self.MVView updateUIWithUserOnSeat:YES song:self.selSongsArray.firstObject];
                         [self.RTCkit setClientRole:AgoraClientRoleBroadcaster];
                         [self bottomSetAudioMute:0];
@@ -1675,12 +1832,12 @@ static NSInteger streamId = -1;
 //房主让某人下线
 - (void)roomMasterMakePersonDropOnLineWithIndex:(NSInteger)seatIndex withDropType:(VLRoomSeatDropType)type{
     VLRoomSeatModel *seatModel = self.seatsArray[seatIndex];
-    if (self.selSongsArray.count > 0) {
-        VLRoomSelSongModel *selSongModel = self.selSongsArray.firstObject;
-        if ([selSongModel.userNo isEqualToString:seatModel.userNo]) {   //当前点的歌
-            return;
-        }
-    }
+//    if (self.selSongsArray.count > 0) {
+//        VLRoomSelSongModel *selSongModel = self.selSongsArray.firstObject;
+//        if ([selSongModel.userNo isEqualToString:seatModel.userNo]) {   //当前点的歌
+//            return;
+//        }
+//    }
     [self popDropLineViewWithSeatModel:seatModel];
 }
 

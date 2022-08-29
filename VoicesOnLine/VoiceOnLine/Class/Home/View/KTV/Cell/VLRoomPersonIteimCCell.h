@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UILabel *nickNameLabel;
 @property (nonatomic, strong) QMUIButton *singingBtn;
 @property (nonatomic, strong) UIView *videoView; //显示视频
-
+@property (nonatomic, strong) QMUIButton *joinChorusBtn;
 
 @end
 

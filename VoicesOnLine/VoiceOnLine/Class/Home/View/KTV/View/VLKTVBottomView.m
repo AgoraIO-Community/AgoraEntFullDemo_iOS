@@ -162,4 +162,17 @@ typedef void (^actionSuccess)(BOOL ifSuccess);
     
 }
 
+- (bool)isAudioMute
+{
+    return (self.isSelfMuted == 1 ? YES : NO);
+}
+
+- (void)resetBtnStatus
+{
+    self.isSelfMuted = NO;
+    self.isVideoMuted = YES;
+    [self.audioBtn setImage:UIImageMake(@"ktv_audio_icon") forState:UIControlStateNormal];
+    [self.videoBtn setImage:UIImageMake(@"ktv_video_muteIcon") forState:UIControlStateNormal];
+}
+
 @end

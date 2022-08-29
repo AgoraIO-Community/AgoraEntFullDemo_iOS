@@ -31,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithFrame:(CGRect)frame withDelegate:(id<VLKTVBottomViewDelegate>)delegate withRoomNo:(NSString *)roomNo withData:(NSArray <VLRoomSeatModel *> *)seatsArray;
 
+- (bool)isAudioMute;
+- (void)resetBtnStatus;
 
 @end
 

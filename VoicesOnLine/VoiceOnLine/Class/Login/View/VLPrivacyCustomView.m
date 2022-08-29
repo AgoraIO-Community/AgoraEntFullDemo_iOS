@@ -16,8 +16,9 @@
 
 @implementation VLPrivacyCustomView
 
-- (instancetype)init {
+- (instancetype)initWithPass:(int)pass {
     if (self = [super init]) {
+        _pass = pass;
         [self initSubViews];
         [self addSubViewConstraints];
     }
@@ -35,7 +36,12 @@
 - (void)addSubViewConstraints {
     [self.scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.left.right.mas_equalTo(self);
-        make.height.mas_greaterThanOrEqualTo(200);
+        if(_pass == 0) {
+            make.height.mas_greaterThanOrEqualTo(200);
+        }
+        else {
+            make.height.mas_greaterThanOrEqualTo(50);
+        }
     }];
     
     [self.label mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -85,19 +91,30 @@
         _label.textColor = UIColorMakeWithHex(@"#6C7192");
         _label.font = VLUIFontMake(12);
         _label.preferredMaxLayoutWidth = 250;
+        NSString *_str4Total = nil;
+        if(_pass == 0) {
+            _str4Total = NSLocalizedString(@"声动互娱软件是一款用于向声网客户展示产品使用效果的测试产品，仅用于测试产品的功能、性能和可用性，而非提供给大众使用的正式产品。\n1.我们将依据《用户协议》及《隐私政策》来帮助您了解我们在收集、使用、存储您个人信息的情况以及您享有的相关权利。\n2.在您使用本测试软件时，我们将收集您的设备信息、日志信息等，同时根据不同使用场景，你可以授予我们获取您设备的麦克风权限、摄像头权限等信息。\n\n您可通过阅读完整的《用户协议》及《隐私政策》来了解详细信息。", nil);
+        }
+        else {
+            _str4Total = NSLocalizedString(@"同意 用户协议 及 隐私政策 后，声动互娱才能为您提供协作服务。", nil);
+        }
         
-        NSString *_str4Total = NSLocalizedString(@"我已阅读并同意 用户协议 及 隐私政策 我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意我已阅读并同意\n我已阅读并同意我已阅读并同意我已阅读并同意\n我已阅读并同意我已阅读并同意我已阅读并同意", nil);
         NSString *_str4Highlight1 = NSLocalizedString(@"用户协议", nil);
         NSString *_str4Highlight2 = NSLocalizedString(@"隐私政策", nil);
         NSMutableAttributedString *_mattrStr = [NSMutableAttributedString new];
         
         [_mattrStr appendAttributedString:[[NSAttributedString alloc] initWithString:_str4Total attributes:@{NSFontAttributeName : VLUIFontMake(12), NSForegroundColorAttributeName : UIColorMakeWithHex(@"#6C7192")}]];
         _mattrStr.yy_lineSpacing = 6;
-        NSRange range1 = [_str4Total rangeOfString:_str4Highlight1];
-        NSRange range2 = [_str4Total rangeOfString:_str4Highlight2];
-        [_mattrStr addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleSingle] range:range1];
-        [_mattrStr addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleSingle] range:range2];
-        if(range1.location != NSNotFound){
+        
+        NSArray *array = [_str4Total componentsSeparatedByString:_str4Highlight1];
+        int d=0;
+        for(int i=0; i<array.count-1; i++) {
+            NSString *subString = array[i];
+            NSNumber *number = [NSNumber numberWithInt:d += subString.length];
+            d += _str4Highlight1.length;
+            
+            NSRange range1 = NSMakeRange([number intValue], _str4Highlight1.length);
+            [_mattrStr addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleSingle] range:range1];
             kWeakSelf(self)
             [_mattrStr yy_setTextHighlightRange:range1 color:UIColorMakeWithHex(@"#009FFF") backgroundColor:[UIColor clearColor] tapAction:^(UIView * _Nonnull containerView, NSAttributedString * _Nonnull text, NSRange range, CGRect rect) {
                 if ([weakself.delegate respondsToSelector:@selector(privacyCustomViewDidClick:)]) {
@@ -105,7 +122,16 @@
                 }
             }];
         }
-        if(range2.location != NSNotFound){
+        
+        NSArray *array2 = [_str4Total componentsSeparatedByString:_str4Highlight2];
+        d=0;
+        for(int i=0; i<array.count-1; i++) {
+            NSString *subString = array2[i];
+            NSNumber *number = [NSNumber numberWithInt:d += subString.length];
+            d += _str4Highlight2.length;
+            
+            NSRange range2 = NSMakeRange([number intValue], _str4Highlight2.length);
+            [_mattrStr addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleSingle] range:range2];
             kWeakSelf(self)
             [_mattrStr yy_setTextHighlightRange:range2 color:UIColorMakeWithHex(@"#009FFF") backgroundColor:[UIColor clearColor] tapAction:^(UIView * _Nonnull containerView, NSAttributedString * _Nonnull text, NSRange range, CGRect rect) {
                 if ([weakself.delegate respondsToSelector:@selector(privacyCustomViewDidClick:)]) {
@@ -113,6 +139,7 @@
                 }
             }];
         }
+        
         _label.lineBreakMode = NSLineBreakByWordWrapping;
         _label.attributedText = _mattrStr;
     }
@@ -123,7 +150,13 @@
     if (!_disButton) {
         _disButton = [UIButton buttonWithType:UIButtonTypeCustom];
         [_disButton addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
-        [_disButton setTitle:NSLocalizedString(@"不同意", nil) forState:UIControlStateNormal];
+        if(_pass == 0) {
+            [_disButton setTitle:NSLocalizedString(@"不同意", nil) forState:UIControlStateNormal];
+        }
+        else {
+            [_disButton setTitle:NSLocalizedString(@"不同意并退出", nil) forState:UIControlStateNormal];
+        }
+        
         [_disButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         _disButton.titleLabel.font = VLUIFontMake(16);
         [_disButton setBackgroundColor:UIColorMakeWithHex(@"#EFF4FF")];
@@ -141,7 +174,13 @@
     if (!_agreeButton) {
         _agreeButton = [UIButton buttonWithType:UIButtonTypeCustom];
         [_agreeButton addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
-        [_agreeButton setTitle:NSLocalizedString(@"同意", nil) forState:UIControlStateNormal];
+        if(_pass == 0) {
+            [_agreeButton setTitle:NSLocalizedString(@"同意", nil) forState:UIControlStateNormal];
+        }
+        else {
+            [_agreeButton setTitle:NSLocalizedString(@"同意并继续", nil) forState:UIControlStateNormal];
+        }
+        
         [_agreeButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         _agreeButton.titleLabel.font = VLUIFontMake(16);
         [_agreeButton setBackgroundColor:UIColorMakeWithHex(@"#2753FF")];
