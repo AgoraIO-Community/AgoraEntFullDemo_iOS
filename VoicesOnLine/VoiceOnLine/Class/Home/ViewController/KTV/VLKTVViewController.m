@@ -1329,6 +1329,7 @@ static NSInteger streamId = -1;
         [self sendSoloMessage];
     } else if (singType == VLKTVMVViewSingActionTypeJoinChorus) { // 加入合唱
         [self sendJoinInSongMessage]; //发送加入合唱的消息
+        [self sendJoinInSongAPI];
     }
 }
 
@@ -1345,6 +1346,22 @@ static NSInteger streamId = -1;
         if (errorCode == 0) {
             VLLog(@"发送独唱消息成功");
         }
+    }];
+}
+
+- (void)sendJoinInSongAPI {
+    VLRoomSelSongModel *selSongModel = self.selSongsArray.firstObject;
+    NSDictionary *param = @{
+        @"roomNo" : self.roomModel.roomNo,
+        @"isChorus": @"1",
+        @"userNo": VLUserCenter.user.userNo,
+        @"songNo": selSongModel.songNo
+    };
+    
+    [VLAPIRequest getRequestURL:kURLRoomJoinChorus parameter:param showHUD:NO success:^(VLResponseDataModel * _Nonnull response) {
+        if (response.code == 0) {
+        }
+    } failure:^(NSError * _Nullable error) {
     }];
 }
 

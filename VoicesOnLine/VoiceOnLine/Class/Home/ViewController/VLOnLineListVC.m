@@ -163,9 +163,10 @@
                 [AgoraRtm setStatus:LoginStatusOnline];
                 //处理座位信息
                 NSArray *seatsArray = response.data[@"roomUserInfoDTOList"];
+                NSArray *songArray = response.data[@"roomSongInfoDTOS"];
                 VLKTVViewController *ktvVC = [[VLKTVViewController alloc]init];
                 ktvVC.roomModel = listModel;
-                ktvVC.seatsArray = [self configureSeatsWithArray:seatsArray];
+                ktvVC.seatsArray = [self configureSeatsWithArray:seatsArray songArray:songArray];
                 [self.navigationController pushViewController:ktvVC animated:YES];
             }];
         }else{
@@ -177,7 +178,7 @@
     }];
 }
 
-- (NSArray *)configureSeatsWithArray:(NSArray *)seatsArray {
+- (NSArray *)configureSeatsWithArray:(NSArray *)seatsArray songArray:(NSArray *)songArray {
     NSMutableArray *seatMuArray = [NSMutableArray array];
     NSArray *modelArray = [VLRoomSeatModel vj_modelArrayWithJson:seatsArray];
     for (int i=0; i<8; i++) {
@@ -185,6 +186,14 @@
         for (VLRoomSeatModel *model in modelArray) {
             if (model.onSeat == i) { //这个位置已经有人了
                 ifFind = YES;
+                if(songArray != nil && [songArray count] >= 1) {
+                    if([model.userNo isEqualToString:songArray[0][@"userNo"]]) {
+                        model.ifSelTheSingSong = YES;
+                    }
+                    else if([model.userNo isEqualToString:songArray[0][@"chorusNo"]]) {
+                        model.ifJoinedChorus = YES;
+                    }
+                }
                 [seatMuArray addObject:model];
             }
         }

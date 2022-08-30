@@ -21,8 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 //自己是否是房主
 @property (nonatomic, assign) BOOL ifMaster;
-@property (nonatomic, assign) NSString *agoraRTMToken;
-@property (nonatomic, assign) NSString *agoraRTCToken;
+@property (nonatomic, copy) NSString *agoraRTMToken;
+@property (nonatomic, copy) NSString *agoraRTCToken;
 
 @end
 

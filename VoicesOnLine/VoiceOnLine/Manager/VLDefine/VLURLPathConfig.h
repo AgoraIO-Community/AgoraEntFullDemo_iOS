@@ -38,6 +38,7 @@ static NSString * const kURLIfSetMute = @"/api-room/roomUsers/ifQuiet";   //是�
 static NSString * const kURLIfOpenVido = @"/api-room/roomUsers/openCamera"; //是否开启摄像头
 static NSString * const kURLUpdataRoom = @"/api-room/roomInfo/updateRoom";   //更新房间信息
 static NSString * const kURLGetRTMToken = @"/api-room/users/getToken"; //获取RTM Token
+static NSString * const kURLRoomJoinChorus = @"/api-room/roomSong/chorus"; // 发送加入合唱
 
 #pragma mark - H5相关
 static NSString * const kURLPathH5UserAgreement = @"https://beidou-releases.oss-cn-zhangjiakou.aliyuncs.com/agora/static/user_agreement.html";
