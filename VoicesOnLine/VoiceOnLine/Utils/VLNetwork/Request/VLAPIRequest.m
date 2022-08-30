@@ -59,7 +59,7 @@ static AFHTTPSessionManager *_sessionManager;
     
     NSURLSessionDataTask *sessionTask;
 
-    [_sessionManager.requestSerializer setValue:[self getToken] forHTTPHeaderField:@"token"];
+    [_sessionManager.requestSerializer setValue:[self getToken] forHTTPHeaderField:@"Authorization"];
     UIWindow *window = ((AppDelegate*)([UIApplication sharedApplication].delegate)).window;
     if (show) [MBProgressHUD showHUDAddedTo:window animated:true];
     if (type == VLRequestTypeGet) {
@@ -106,7 +106,7 @@ static AFHTTPSessionManager *_sessionManager;
     
     NSURLSessionDataTask *sessionTask;
     //设置请求头
-    [_sessionManager.requestSerializer setValue:[self getToken] forHTTPHeaderField:@"token"];
+    [_sessionManager.requestSerializer setValue:[self getToken] forHTTPHeaderField:@"Authorization"];
 
     if (type == VLRequestTypeGet) {
         // GET

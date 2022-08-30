@@ -8,5 +8,4 @@
 
 #define HOST @""
 #define AGORA_APP_ID @""
-#define AGORA_APP_CERTIFICATE @""
 #endif /* VLConfig_h */
