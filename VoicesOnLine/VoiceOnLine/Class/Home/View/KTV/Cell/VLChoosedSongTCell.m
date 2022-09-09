@@ -34,16 +34,16 @@
     self.nameLabel.textColor = UIColorMakeWithHex(@"#FFFFFF");
     self.nameLabel.font = UIFontBoldMake(15);
     [self addSubview:self.nameLabel];
-
-    self.typeLabel = [[UILabel alloc]init];
-    self.typeLabel.textColor = UIColorMakeWithHex(@"#6C7192");
-    self.typeLabel.font = UIFontMake(9);
-    self.typeLabel.layer.cornerRadius = 4;
-    self.typeLabel.layer.masksToBounds = YES;
-    self.typeLabel.layer.borderWidth = 1.0f;
-    self.typeLabel.textAlignment = NSTextAlignmentCenter;
-    self.typeLabel.layer.borderColor = UIColorMakeWithHex(@"#6C7192").CGColor;
-    [self addSubview:self.typeLabel];
+//
+//    self.typeLabel = [[UILabel alloc]init];
+//    self.typeLabel.textColor = UIColorMakeWithHex(@"#6C7192");
+//    self.typeLabel.font = UIFontMake(9);
+//    self.typeLabel.layer.cornerRadius = 4;
+//    self.typeLabel.layer.masksToBounds = YES;
+//    self.typeLabel.layer.borderWidth = 1.0f;
+//    self.typeLabel.textAlignment = NSTextAlignmentCenter;
+//    self.typeLabel.layer.borderColor = UIColorMakeWithHex(@"#6C7192").CGColor;
+//    [self addSubview:self.typeLabel];
     
     self.chooserLabel = [[UILabel alloc]init];
     self.chooserLabel.textColor = UIColorMakeWithHex(@"#6C7192");
@@ -90,8 +90,8 @@
     self.sortBtn.frame = CGRectMake(self.deleteBtn.left-16-36, (self.height-36)*0.5, 36, 36);
     
     self.nameLabel.frame = CGRectMake(self.picImgView.right+12, self.picImgView.top+2, self.width-self.picImgView.right-12-20-80, 21);
-    self.typeLabel.frame = CGRectMake(self.nameLabel.left, self.nameLabel.bottom+8, 24, 14);
-    self.chooserLabel.frame = CGRectMake(self.typeLabel.right+5, self.typeLabel.centerY-8, self.width-self.typeLabel.right-20-80, 17);
+//    self.typeLabel.frame = CGRectMake(self.nameLabel.left, self.nameLabel.bottom+8, 24, 14);
+    self.chooserLabel.frame = CGRectMake(self.picImgView.right+12, self.nameLabel.bottom+8, self.width-self.picImgView.right-20-80, 17);
     
     self.singingBtn.frame = CGRectMake(self.width-70-20, (self.height-20)*0.5, 70, 20);
     self.bottomLine.frame = CGRectMake(20, self.height-1, self.width-40, 1);
@@ -99,13 +99,19 @@
 
 - (void)setSelSongModel:(VLRoomSelSongModel *)selSongModel {
     _selSongModel = selSongModel;
-    if (selSongModel.isChorus) {
-        self.typeLabel.text = NSLocalizedString(@"合唱", nil);
-    }else{
-        self.typeLabel.text = NSLocalizedString(@"独唱", nil);
-    }
+//    if (selSongModel.isChorus) {
+//        self.typeLabel.text = NSLocalizedString(@"合唱", nil);
+//    }else{
+//        self.typeLabel.text = NSLocalizedString(@"独唱", nil);
+//    }
     self.nameLabel.text = selSongModel.songName;
-    self.chooserLabel.text = [NSString stringWithFormat:NSLocalizedString(@"点唱: %@", nil),selSongModel.name];
+    if(selSongModel.isChorus) {
+        self.chooserLabel.text = [NSString stringWithFormat:NSLocalizedString(@"合唱: %@", nil),selSongModel.name];
+    }
+    else {
+        self.chooserLabel.text = [NSString stringWithFormat:NSLocalizedString(@"点唱: %@", nil),selSongModel.name];
+    }
+    
     if (selSongModel.status == 0) {
         self.sortBtn.hidden = self.deleteBtn.hidden = NO;
         self.singingBtn.hidden = YES;
@@ -113,6 +119,13 @@
         self.sortBtn.hidden = self.deleteBtn.hidden = YES;
         self.singingBtn.hidden = NO;
     }
+    
+    
+    if(!VLUserCenter.user.ifMaster) {
+        self.sortBtn.hidden = YES;
+        self.deleteBtn.hidden = YES;
+    }
+    
     [self.picImgView sd_setImageWithURL:[NSURL URLWithString:selSongModel.imageUrl]];
     
 }

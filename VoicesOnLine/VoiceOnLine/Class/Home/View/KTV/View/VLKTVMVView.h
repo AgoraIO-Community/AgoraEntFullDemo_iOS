@@ -99,6 +99,7 @@ typedef enum : NSUInteger {
 - (void)cleanMusicText;
 - (int)getSongScore;
 - (void)setSongScore:(int)score;
+- (int)getAvgSongScore;
 
 - (void)validateSingType;
 

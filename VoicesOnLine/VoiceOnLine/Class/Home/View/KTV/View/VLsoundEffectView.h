@@ -8,7 +8,8 @@
 typedef enum : NSUInteger {
     VLKTVSoundEffectTypeHeFeng = 0, // 和风
     VLKTVSoundEffectTypeXiaoDiao,   // 小调
-    VLKTVSoundEffectTypeDaDiao      // 大调
+    VLKTVSoundEffectTypeDaDiao,      // 大调
+    VLKTVSoundEffectTypeNone
 } VLKTVSoundEffectType;
 
 NS_ASSUME_NONNULL_BEGIN

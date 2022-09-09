@@ -10,6 +10,7 @@
 @interface VLSearchSongResultView()<UITableViewDataSource,UITableViewDelegate>
 
 @property(nonatomic, weak) id <VLSearchSongResultViewDelegate>delegate;
+@property (nonatomic, strong) UILabel *emptyLabel;
 @property (nonatomic, strong) UITableView  *tableView;
 @property (nonatomic, strong) NSMutableArray *songsMuArray;
 @property (nonatomic, assign) NSInteger        page;
@@ -44,8 +45,22 @@
     [VLAPIRequest getRequestURL:kURLGetSongsList parameter:param showHUD:NO success:^(VLResponseDataModel * _Nonnull response) {
         if (response.code == 0) {
             [self.tableView.mj_header endRefreshing];
-            self.page += 1;
             NSArray *tempArray = response.data[@"records"];
+            
+            if(self.page == 0) {
+                if([tempArray count] == 0) {
+                    self.tableView.hidden = YES;
+                    self.emptyLabel.hidden = NO;
+                    return;
+                }
+                else {
+                    self.tableView.hidden = NO;
+                    self.emptyLabel.hidden = YES;
+                }
+            }
+            
+            self.page += 1;
+            
             NSArray *modelsArray = [VLSongItmModel vj_modelArrayWithJson:tempArray];
             if (ifRefresh) {
                 [self.songsMuArray removeAllObjects];
@@ -77,12 +92,27 @@
 }
 
 - (void)setupView{
+//    self.emptyResultView = [UITextView alloc] initWithFrame:<#(CGRect)#>
+//    _cLabel = [[UILabel alloc] init];
+//    _cLabel.font = VLUIFontMake(13);
+//    _cLabel.textColor = [UIColor whiteColor];
+//
+    self.emptyLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 60, SCREEN_WIDTH, 30)];
+    self.emptyLabel.font = VLUIFontMake(13);
+    self.emptyLabel.textColor = [UIColor colorWithHexString:@"#979CBB"];
+    self.emptyLabel.text = NSLocalizedString(@"未找到相关结果", nil);
+    self.emptyLabel.textAlignment = NSTextAlignmentCenter;
+    [self addSubview:self.emptyLabel];
+    self.emptyLabel.hidden = YES;
+    
+    
     self.tableView = [[UITableView alloc]initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, self.height)];
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.backgroundColor = UIColorMakeWithHex(@"#152164");
     [self addSubview:self.tableView];
+    self.tableView.hidden = NO;
     
     VL(weakSelf);
     self.tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{

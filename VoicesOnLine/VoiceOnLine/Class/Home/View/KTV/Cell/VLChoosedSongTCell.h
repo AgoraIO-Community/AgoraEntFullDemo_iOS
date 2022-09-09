@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UILabel *numberLabel;
 @property (nonatomic, strong) UILabel *nameLabel;
 //合唱/独唱
-@property (nonatomic, strong) UILabel *typeLabel;
+//@property (nonatomic, strong) UILabel *typeLabel;
 @property (nonatomic, strong) UILabel *chooserLabel;
 @property (nonatomic, strong) VLHotSpotBtn *deleteBtn;
 @property (nonatomic, strong) VLHotSpotBtn *sortBtn;

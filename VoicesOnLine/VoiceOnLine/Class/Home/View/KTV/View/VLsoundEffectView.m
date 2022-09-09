@@ -145,7 +145,12 @@
 
 
 - (void)switchPressed:(ZQTCustomSwitch *)sender {
-    
+    if(!self.openSwitch.isOn) {
+        [self closeEffect];
+    }
+    else {
+        [self validateEffect];
+    }
 }
 
 //- (void)tapGesEvent:(UITapGestureRecognizer *)tapGes {
@@ -161,9 +166,31 @@
 //        }
 //    }
 //}
+
+- (void)closeEffect {
+    if (!self.openSwitch.isOn) {
+        self.typeValue = VLKTVSoundEffectTypeNone;
+        
+        if (self.delegate && [self.delegate respondsToSelector:@selector(soundEffectItemClickAction:)]) {
+            [self.delegate soundEffectItemClickAction:self.typeValue];
+        }
+    }
+}
+
+- (void)validateEffect
+{
+    if(self.typeValue == -1) {
+        self.typeValue = VLKTVSoundEffectTypeHeFeng;
+    }
     
+    if (self.delegate && [self.delegate respondsToSelector:@selector(soundEffectItemClickAction:)]) {
+        [self.delegate soundEffectItemClickAction:self.typeValue];
+    }
+}
+
 - (void)itemBtnClick:(VLHotSpotBtn *)sender {
     if (!self.openSwitch.isOn) {
+        [self closeEffect];
         return;
     }
     if (sender.tag == 0) {
@@ -210,9 +237,7 @@
         self.daDiaoLabel.font = UIFontBoldMake(12);
         self.daDiaoView.backgroundColor = UIColorMakeWithHex(@"#009FFF");
     }
-    if (self.delegate && [self.delegate respondsToSelector:@selector(soundEffectItemClickAction:)]) {
-        [self.delegate soundEffectItemClickAction:self.typeValue];
-    }
+    [self validateEffect];
 }
 
 - (void)rotateAnimationFrom:(CGFloat)fromValue toValue:(CGFloat)toValue {

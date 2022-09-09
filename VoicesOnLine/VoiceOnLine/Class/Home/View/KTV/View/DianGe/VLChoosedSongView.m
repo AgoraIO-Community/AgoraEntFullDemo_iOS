@@ -69,6 +69,15 @@
         }
         
     };
+    
+    if(VLUserCenter.user.ifMaster) {
+        if(indexPath.row == 0 || indexPath.row == 1) {
+            cell.sortBtn.hidden = YES;
+        }
+        else {
+            cell.sortBtn.hidden = NO;
+        }
+    }
     return cell;
 }
 

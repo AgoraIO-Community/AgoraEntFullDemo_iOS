@@ -50,7 +50,7 @@
     UIButton *joinBtn = [[UIButton alloc]initWithFrame:CGRectMake((self.width-115)*0.5, tipsLabel.bottom+30, 115, 36)];
     joinBtn.layer.cornerRadius = 18;
     joinBtn.layer.masksToBounds = YES;
-    [joinBtn addTarget:self action:@selector(joinBtnClickEvent) forControlEvents:UIControlEventTouchUpInside];
+    [joinBtn addTarget:self action:@selector(joinBtnClickEvent:) forControlEvents:UIControlEventTouchUpInside];
     [joinBtn setBackgroundColor:UIColorMakeWithHex(@"#345DFF")];
     [joinBtn setTitle:NSLocalizedString(@"加入合唱", nil) forState:UIControlStateNormal];
     [joinBtn setTitleColor:UIColorWhite forState:UIControlStateNormal];
@@ -58,7 +58,7 @@
     [self addSubview:joinBtn];
 }
 
-- (void)joinBtnClickEvent {
+- (void)joinBtnClickEvent:(UIButton*)sender {
     if ([self.delegate respondsToSelector:@selector(robViewChorusAction)]) {
         [self.delegate robViewChorusAction];
     }

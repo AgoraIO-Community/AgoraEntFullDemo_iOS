@@ -89,8 +89,10 @@
         .LeeAddTextField(^(UITextField *textField) {
             textField.placeholder = NSLocalizedString(@"请输入房间密码", nil);
             textField.textColor = UIColorBlack;
+            textField.clearButtonMode=UITextFieldViewModeWhileEditing;
             textField.font = UIFontMake(15);
             textField.keyboardType = UIKeyboardTypeNumberPad;
+            [textField becomeFirstResponder];
             TF = textField; //赋值
         })
         .LeeAddAction(^(LEEAction *action) {

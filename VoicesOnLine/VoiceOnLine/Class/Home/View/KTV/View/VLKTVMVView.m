@@ -33,6 +33,9 @@
 
 @property (nonatomic, strong) AgoraLrcScoreConfigModel *config;
 @property (nonatomic, assign) VLKTVMVViewActionType singType;
+@property (nonatomic, assign) int totalLines;
+@property (nonatomic, assign) double totalScore;
+@property (nonatomic, assign) double currentTime;
 @end
 
 @implementation VLKTVMVView
@@ -42,6 +45,7 @@
         self.delegate = delegate;
         [self setupView];
         self.singType = VLKTVMVViewActionTypeSingOrigin;
+        self.currentTime = 0;
     }
     return self;
 }
@@ -399,7 +403,10 @@
 -(void)agoraKaraokeScoreWithScore:(double)score cumulativeScore:(double)cumulativeScore totalScore:(double)totalScore {
     double scale = cumulativeScore / totalScore;
     double realScore = scale * 100;
-    self.scoreLabel.text = [NSString stringWithFormat:@"%.0lf",realScore];
+    self.scoreLabel.text = [NSString stringWithFormat:@"%.0lf",score];
+    self.totalLines += 1;
+    self.totalScore = cumulativeScore;
+    VLLog(@"Recording: %d lines at totalScore: %f", self.totalLines, cumulativeScore);
     if ([self.delegate respondsToSelector:@selector(ktvMVViewMusicScore:)]) {
         [self.delegate ktvMVViewMusicScore:realScore];
     }
@@ -409,13 +416,24 @@
     return [self.scoreLabel.text intValue];
 }
 
+- (int)getAvgSongScore
+{
+    if(self.totalLines <= 0) {
+        return 0;
+    }
+    else {
+        return (int)(self.totalScore / self.totalLines);
+    }
+}
+
 #pragma mark - AgoraLrcViewDelegate
 
 - (NSTimeInterval)getPlayerCurrentTime {
     if ([self.delegate respondsToSelector:@selector(ktvMVViewMusicCurrentTime)]) {
-        return [self.delegate ktvMVViewMusicCurrentTime];
+        self.currentTime = [self.delegate ktvMVViewMusicCurrentTime];
+        return self.currentTime;
     }
-    return 0;
+    return self.currentTime;
 }
 
 - (NSTimeInterval)getTotalTime {
@@ -450,11 +468,12 @@
 
 - (void)loadLrcURL:(NSString *)lrcURL {
     [_lrcView setLrcUrlWithUrl:lrcURL];
-    VLLog(@"开始加载歌词链接");
 }
 
 - (void)start {
     [_lrcView start];
+    self.totalLines = 0;
+    self.totalScore = 0.0f;
 }
 
 - (void)stop {

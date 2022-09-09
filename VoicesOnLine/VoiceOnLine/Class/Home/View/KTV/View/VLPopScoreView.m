@@ -29,11 +29,11 @@
         self.backgroundColor = UIColorMakeWithRGBA(0, 0, 0, 0.7);
         self.delegate = delegate;
         [self setupView];
-        @weakify(self)
-        [self vl_whenTapped:^{
-            @strongify(self)
-            [self dismiss];
-        }];
+//        @weakify(self)
+//        [self vl_whenTapped:^{
+//            @strongify(self)
+//            [self dismiss];
+//        }];
     }
     return self;
 }

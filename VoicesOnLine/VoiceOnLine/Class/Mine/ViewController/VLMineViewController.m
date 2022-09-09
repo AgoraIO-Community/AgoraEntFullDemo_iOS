@@ -99,10 +99,12 @@
     .LeeAddTextField(^(UITextField *textField) {
         textField.placeholder = NSLocalizedString(@"请输入昵称", nil);
         textField.textColor = UIColorBlack;
+        textField.clearButtonMode=UITextFieldViewModeWhileEditing;
         textField.font = UIFontMake(15);
         if (VLUserCenter.user.name.length > 0) {
             textField.text = VLUserCenter.user.name;
         }
+        [textField becomeFirstResponder];
         TF = textField; //赋值
     })
     .LeeAddAction(^(LEEAction *action) {

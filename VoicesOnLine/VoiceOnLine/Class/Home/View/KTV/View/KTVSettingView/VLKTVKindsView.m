@@ -10,6 +10,7 @@
 
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (nonatomic, strong) VLKTVKindsModel *currentModel;
+@property (nonatomic, assign) long selectedOne;
 
 @end
 
@@ -19,6 +20,7 @@
     if (self = [super init]) {
         [self initSubViews];
         [self addSubViewConstraints];
+        _selectedOne = 0;
     }
     return self;
 }
@@ -47,6 +49,12 @@
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     VLKTVKindsCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"VLKTVKindsCell" forIndexPath:indexPath];
     cell.model = _list[indexPath.row];
+    if(indexPath.item == _selectedOne) {
+        [cell setSelected:YES];
+    }
+    else {
+        [cell setSelected:NO];
+    }
     return  cell;
 }
 
@@ -56,7 +64,14 @@
         return;
     }
     
+    _selectedOne = indexPath.row;
+    
+    for(int i=0; i<[_list count]; i++) {
+        VLKTVKindsModel *model = _list[i];
+        model.selected = NO;
+    }
     self.currentModel.selected = NO;
+    
     model.selected = YES;
     self.currentModel = model;
     [collectionView reloadData];
@@ -110,6 +125,9 @@
         VLKTVKindsModel *model = [[VLKTVKindsModel alloc] init];
         model.title = titlesArray[i];
         model.imageName = imagesArray[i];
+        if(i == 0) {
+            model.selected = YES;
+        }
         [array addObject:model];
     }
     return array;
