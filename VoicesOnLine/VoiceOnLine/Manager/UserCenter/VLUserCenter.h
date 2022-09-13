@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)clearUserRoomInfo;
 
+
 @end
 
 NS_ASSUME_NONNULL_END

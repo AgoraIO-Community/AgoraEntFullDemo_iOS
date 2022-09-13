@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL ifMaster;
 @property (nonatomic, copy) NSString *agoraRTMToken;
 @property (nonatomic, copy) NSString *agoraRTCToken;
+@property (nonatomic, copy) NSString *agoraPlayerRTCToken;
 
 @end
 

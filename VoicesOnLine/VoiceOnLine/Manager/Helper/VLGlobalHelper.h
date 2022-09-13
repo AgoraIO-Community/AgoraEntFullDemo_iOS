@@ -20,6 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSDictionary *)dictionaryForJsonData:(NSData *)jsonData;
 
++ (NSInteger)getAgoraPlayerUserId:(NSString *)userId;
+
++ (NSInteger)getAgoraMicUserId:(NSString *)userId;
+
 @end
 
 NS_ASSUME_NONNULL_END

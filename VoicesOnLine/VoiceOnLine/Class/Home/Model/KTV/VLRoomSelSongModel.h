@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSInteger  status;
 ///是谁点的歌
 @property (nonatomic, copy) NSString *userNo;
+@property (nonatomic, copy) NSString *userId;
 ///点歌人昵称
 @property (nonatomic, copy) NSString *name;
 

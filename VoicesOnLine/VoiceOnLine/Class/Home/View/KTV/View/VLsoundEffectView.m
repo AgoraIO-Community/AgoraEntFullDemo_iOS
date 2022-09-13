@@ -169,10 +169,8 @@
 
 - (void)closeEffect {
     if (!self.openSwitch.isOn) {
-        self.typeValue = VLKTVSoundEffectTypeNone;
-        
         if (self.delegate && [self.delegate respondsToSelector:@selector(soundEffectItemClickAction:)]) {
-            [self.delegate soundEffectItemClickAction:self.typeValue];
+            [self.delegate soundEffectItemClickAction:VLKTVSoundEffectTypeNone];
         }
     }
 }

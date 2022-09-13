@@ -44,4 +44,12 @@
     return [NSDictionary dictionaryWithDictionary:(NSDictionary *)jsonObj];
 }
 
++ (NSInteger)getAgoraMicUserId:(NSString *)userId {
+    return [userId integerValue] * 10;
+}
+
++ (NSInteger)getAgoraPlayerUserId:(NSString *)userId {
+    return [userId integerValue] * 10 + 1;
+}
+
 @end

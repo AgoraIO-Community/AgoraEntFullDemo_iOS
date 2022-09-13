@@ -154,6 +154,7 @@
             listModel.creator = response.data[@"creatorNo"];
             VLUserCenter.user.agoraRTCToken = response.data[@"agoraRTCToken"];
             VLUserCenter.user.agoraRTMToken = response.data[@"agoraRTMToken"];
+            VLUserCenter.user.agoraPlayerRTCToken = response.data[@"agoraPlayerRTCToken"];
             
 //            [AgoraRtm setCurrent:VLUserCenter.user.name];
             //登录RTM

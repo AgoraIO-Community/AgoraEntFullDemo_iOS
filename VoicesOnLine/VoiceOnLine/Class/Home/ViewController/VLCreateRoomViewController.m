@@ -83,7 +83,9 @@
                     
                     VLUserCenter.user.agoraRTCToken = response.data[@"agoraRTCToken"];
                     VLUserCenter.user.agoraRTMToken = response.data[@"agoraRTMToken"];
-                    VLLog(@"Agora - RTCToken: %@, RTMToken: %@, UID: %@, roomNo: %@", VLUserCenter.user.agoraRTCToken, VLUserCenter.user.agoraRTMToken, VLUserCenter.user.id, param[@"roomNo"]);
+                    VLUserCenter.user.agoraPlayerRTCToken = response.data[@"agoraPlayerRTCToken"];
+                    
+                    VLLog(@"Agora - RTCToken: %@, RTMToken: %@, RTCPlayerToken: %@, UID: %@, roomNo: %@", VLUserCenter.user.agoraRTCToken, VLUserCenter.user.agoraRTMToken, VLUserCenter.user.agoraPlayerRTCToken, VLUserCenter.user.id, param[@"roomNo"]);
                     [AgoraRtm.kit loginByToken:VLUserCenter.user.agoraRTMToken user:VLUserCenter.user.id completion:^(AgoraRtmLoginErrorCode errorCode) {
                         if (!(errorCode == AgoraRtmLoginErrorOk || errorCode == AgoraRtmLoginErrorAlreadyLogin)) {
                             VLLog(@"Agora - 加入RTM失败, errorCode: %ld", errorCode);
