@@ -96,6 +96,7 @@ static NSInteger streamId = -1;
 
 @property (nonatomic, strong) AgoraRtcConnection *mediaPlayerConnection;
 @property (nonatomic, strong) NSString *mutedRemoteUserId;
+@property (nonatomic, strong) NSString *currentPlayingSongNo;
 
 @end
 
@@ -640,11 +641,11 @@ static NSInteger streamId = -1;
             action.insets = UIEdgeInsetsMake(10, 20, 20, 20);
             action.font = UIFontBoldMake(16);
             action.clickBlock = ^{
-                // FIXME:
                 if([weakSelf currentUserIsOnSeat]) {
                     // Drop mic first
                     [weakSelf dropOnLineAction:nil];
                 }
+                [weakSelf resetChorusStatus:VLUserCenter.user.userNo];
                 VLRoomSelSongModel *song = self.selSongsArray.count ? self.selSongsArray.firstObject : nil;
                 if(song != nil && song.isOwnSong) {
                     [weakSelf ktvMVViewDidClick:VLKTVMVViewActionTypeExit];
@@ -953,6 +954,23 @@ static NSInteger streamId = -1;
 - (void)disableTransmission{
 }
 
+// Reset chorus to audience
+- (void)resetChorusStatus:(NSString *)userNo {
+    if([self ifChorusSinger:userNo]) {
+        [self setSelfChorusUserNo:nil];
+        if([userNo isEqualToString:VLUserCenter.user.userNo]) {
+            if(self.rtcMediaPlayer != nil) {
+                [self.rtcMediaPlayer stop];
+            }
+
+            [self resetPlayer];
+            [self disableMediaChannel];
+        }
+    }
+    else if(userNo == nil) {
+        [self setSelfChorusUserNo:nil];
+    }
+}
 
 #pragma mark --某人下麦
 - (void)dropOnLineAction:(VLRoomSeatModel *)seatModel {
@@ -998,11 +1016,14 @@ static NSInteger streamId = -1;
                         if([self ifMainSinger:VLUserCenter.user.userNo]) {
                             [self playNextSong:0];
                         }
+                        
                         [self setSelfAudience];
                     }
                     else if([self ifIAmRoomMaster] && [self ifMainSinger:userNo]==YES) {
                         [self playNextSong:1];
                     }
+                    
+                    [self resetChorusStatus:userNo];
                     
                     for (VLRoomSeatModel *model in self.seatsArray) {
                         if (model.onSeat == userOnSeat) {
@@ -1265,6 +1286,7 @@ static NSInteger streamId = -1;
 
 - (void)playNextSong:(int)isMasterInterrupt {
     self.currentTime = 0;
+    self.currentPlayingSongNo = nil;
     [self.MVView stop];
     [self.MVView reset];
     [self.MVView cleanMusicText];
@@ -1721,6 +1743,7 @@ static NSInteger streamId = -1;
                 self.bottomView.hidden = YES;
                 // 取出对应模型、防止数组越界
                 [self setSelfAudience];
+                [self resetChorusStatus:seatModel.userNo];
                 
                 if (self.seatsArray.count - 1 >= seatModel.onSeat) {
                     // 下麦重置占位模型
@@ -1732,6 +1755,7 @@ static NSInteger streamId = -1;
                 for (VLRoomSeatModel *model in self.seatsArray) {
                     if ([seatModel.userNo isEqualToString:model.userNo]) {
                         [model resetLeaveSeat];
+                        [self resetChorusStatus:seatModel.userNo];
                         [self disableTransmission];
                     }
                 }
@@ -1816,12 +1840,20 @@ static NSInteger streamId = -1;
     NSLog(@"%@",attributes);
 }
 
-- (void)setUserJoinChorus:(NSString *)userNo
+- (void)setSelfChorusUserNo:(NSString *)userNo
 {
     VLRoomSelSongModel *song = self.selSongsArray.count ? self.selSongsArray.firstObject : nil;
     if(song != nil) {
+        if(userNo == nil) {
+            song.isChorus = NO;
+        }
         song.chorusNo = userNo;
     }
+}
+
+- (void)setUserJoinChorus:(NSString *)userNo
+{
+    [self setSelfChorusUserNo:userNo];
     
     for (VLRoomSeatModel *seat in self.seatsArray) {
         if ([seat.userNo isEqualToString:userNo]) {
@@ -2076,7 +2108,8 @@ static NSInteger streamId = -1;
             if (!(self.selSongsArray.count > 0)){
                 return;
             }
-            if(!selSongModel.isChorus) {
+            
+            if(!selSongModel.isChorus && self.currentPlayingSongNo == nil) {
                 [self startSinging];
             }
         }
@@ -2124,6 +2157,8 @@ static NSInteger streamId = -1;
             [self updateRemoteUserMuteStatus:self.mutedRemoteUserId doMute:YES];
         }
     }
+    
+    self.currentPlayingSongNo = selSongModel.songNo;
     
       [VLAPIRequest getRequestURL:kURLSongDetail parameter:param showHUD:NO success:^(VLResponseDataModel * _Nonnull response) {
           if (response.code == 0) {     //拿到歌曲和歌词
