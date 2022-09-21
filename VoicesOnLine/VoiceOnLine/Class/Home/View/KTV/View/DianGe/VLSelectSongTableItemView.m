@@ -166,10 +166,23 @@
             
             [[NSNotificationCenter defaultCenter]postNotificationName:kDianGeSuccessNotification object:model];
         }
+        else {
+            [self dianGeFailedWithModel:model];
+        }
     } failure:^(NSError * _Nullable error) {
-        
+        [self dianGeFailedWithModel:model];
     }];
 }
+
+- (void)dianGeFailedWithModel:(VLSongItmModel *)songItemModel {
+    for (VLSongItmModel *model in self.songsMuArray) {
+        if (songItemModel.songNo == model.songNo) {
+            model.ifChoosed = NO;
+        }
+    }
+    [self.tableView reloadData];
+}
+
 
 - (void)dianGeSuccessWithModel:(VLSongItmModel *)songItemModel {
     for (VLSongItmModel *model in self.songsMuArray) {

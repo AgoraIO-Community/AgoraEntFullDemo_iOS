@@ -94,6 +94,7 @@
 }
 
 - (void)chooseBtnClickEvent {
+    self.chooseBtn.enabled = NO;
     self.dianGeBtnClickBlock(self.songItemModel);
 }
 

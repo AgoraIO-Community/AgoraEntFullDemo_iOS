@@ -1476,9 +1476,7 @@ static NSInteger streamId = -1;
         @"messageType":@(VLSendMessageTypeTellJoinUID),
         @"userNo": singerUserNo,
         @"name": VLUserCenter.user.name,
-//        @"bgUid":[NSString stringWithFormat:@"%u", arc4random() % 9999999],
         @"bgUid": [NSString stringWithFormat:@"%ld", [VLGlobalHelper getAgoraPlayerUserId:VLUserCenter.user.id]],
-//        @"bgUid":[NSString stringWithFormat:@"%ld", (long)streamId],
         @"platform":@"1",
         @"roomNo":self.roomModel.roomNo
     };
@@ -1786,7 +1784,9 @@ static NSInteger streamId = -1;
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.MVView setJoinInViewHidden];
                 [self setUserJoinChorus:dict[@"userNo"]];
-                [self sendApplySendChorusMessage:dict[@"userNo"]];
+                if([self ifMainSinger:VLUserCenter.user.userNo]) {
+                    [self sendApplySendChorusMessage:dict[@"userNo"]];
+                }
                 [self joinChorusConfig:member.userId];
             });
         }else if([dict[@"messageType"] intValue] == VLSendMessageTypeSoloSong){ //独唱
@@ -1918,7 +1918,7 @@ static NSInteger streamId = -1;
     if (![dict[@"cmd"] isEqualToString:@"setLrcTime"] && ![dict[@"cmd"] isEqualToString:@"testDelay"]){
         VLLog(@"receiveStreamMessageFromUid::%ld---message::%@",uid, dict);
     }
-    VLLog(@"返回数据:%@,streatID:%d,uid:%d",dict,(int)streamId,(int)uid);
+    VLLog(@"返回数据:%@,streamID:%d,uid:%d",dict,(int)streamId,(int)uid);
     
     if ([dict[@"cmd"] isEqualToString:@"setLrcTime"]) {  //同步歌词
         long type = [dict[@"time"] longValue];
