@@ -98,6 +98,8 @@ static NSInteger streamId = -1;
 @property (nonatomic, strong) NSString *mutedRemoteUserId;
 @property (nonatomic, strong) NSString *currentPlayingSongNo;
 
+@property (nonatomic, assign) BOOL isEarOn;
+
 @end
 
 @implementation VLKTVViewController
@@ -355,6 +357,7 @@ static NSInteger streamId = -1;
     [UIViewController popGestureClose:self];
     
 
+    _isEarOn = NO;
     //请求已点歌曲
     [self userFirstGetInRoom];
 }
@@ -371,6 +374,7 @@ static NSInteger streamId = -1;
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(dianGeSuccessEvent:) name:kDianGeSuccessNotification object:nil];
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(makeTopSuccessEvent) name:kMakeTopNotification object:nil];
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(deleteSuccessEvent) name:kDeleteSuccessNotification object:nil];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(updateSelSongEvent) name:kUpdateSelSongArrayNotification object:nil];
 }
 
 - (void) viewDidDisappear:(BOOL)animated
@@ -788,14 +792,18 @@ static NSInteger streamId = -1;
     if (ifMute == 1) {
         AgoraRtcChannelMediaOptions *option = [[AgoraRtcChannelMediaOptions alloc] init];
         option.publishAudioTrack = [AgoraRtcBoolOptional of:NO];
-//        option.publishMediaPlayerAudioTrack = [AgoraRtcBoolOptional of:YES];
         [self.RTCkit updateChannelWithMediaOptions:option];
+        if(self.isEarOn) {
+            [self.RTCkit enableInEarMonitoring:NO];
+        }
     }
     else{
         AgoraRtcChannelMediaOptions *option = [[AgoraRtcChannelMediaOptions alloc] init];
         option.publishAudioTrack = [AgoraRtcBoolOptional of:YES];
-//        option.publishMediaPlayerAudioTrack = [AgoraRtcBoolOptional of:YES];
         [self.RTCkit updateChannelWithMediaOptions:option];
+        if(self.isEarOn) {
+            [self.RTCkit enableInEarMonitoring:YES];
+        }
     }
     [self.MVView validateSingType];
 }
@@ -1590,6 +1598,7 @@ static NSInteger streamId = -1;
         // AgoraEarMonitoringFilterNoiseSuppression
         // [self.RTCkit enableInEarMonitoring:setting.soundOn includeAudioFilters:AgoraEarMonitoringFilterBuiltInAudioFilters | AgoraEarMonitoringFilterNoiseSuppression];
         [self.RTCkit enableInEarMonitoring:setting.soundOn];
+        _isEarOn = setting.soundOn;
         
     } else if (type == VLKTVValueDidChangedTypeMV) { // MV
         
@@ -2077,6 +2086,10 @@ static NSInteger streamId = -1;
 
 - (void)deleteSuccessEvent {
     [self choosedSongsListToChangeUI];
+}
+
+- (void)updateSelSongEvent {
+    self.selSongsArray = [self.chooseSongView validateSelSongArray];;
 }
 
 - (void)getChoosedSongsList:(BOOL)ifChorus onlyRefreshList:(BOOL)onlyRefreshList {

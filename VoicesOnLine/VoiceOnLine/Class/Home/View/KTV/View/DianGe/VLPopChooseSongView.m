@@ -80,6 +80,11 @@
     }
 }
 
+- (NSArray *)validateSelSongArray {
+    [self setSelSongsArray:[self.choosedSongView getSelSongArray]];
+    return self.selSongsArray;
+}
+
 - (VLHotSpotBtn *)dianGeBtn {
     if (!_dianGeBtn) {
         _dianGeBtn = [[VLHotSpotBtn alloc]initWithFrame:CGRectMake(30, 20, 34, 22)];

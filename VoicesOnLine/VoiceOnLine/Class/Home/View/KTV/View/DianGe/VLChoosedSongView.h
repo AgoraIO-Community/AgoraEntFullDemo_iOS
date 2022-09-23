@@ -28,6 +28,8 @@ typedef enum : NSUInteger {
 
 - (void)setSelSongsUIWithArray:(NSArray *)selSongsArray;
 
+- (NSArray *)getSelSongArray;
+
 @end
 
 NS_ASSUME_NONNULL_END

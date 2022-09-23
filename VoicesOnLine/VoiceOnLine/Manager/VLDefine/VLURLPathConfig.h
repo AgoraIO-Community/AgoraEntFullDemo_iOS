@@ -11,6 +11,7 @@ static NSString * const kExitRoomNotification = @"exitRoomNotification";
 static NSString * const kDianGeSuccessNotification = @"DianGeSuccessNotification";
 static NSString * const kMakeTopNotification = @"MakeTopNotification";
 static NSString * const kDeleteSuccessNotification = @"DeleteSuccessNotification";
+static NSString * const kUpdateSelSongArrayNotification = @"kUpdateSelSongArrayNotification";
 
 #pragma mark - API
 static NSString * const kURLPathUploadImage = @"/api-login/upload"; //上传图片

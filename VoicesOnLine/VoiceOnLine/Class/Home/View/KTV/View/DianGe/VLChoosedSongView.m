@@ -112,10 +112,15 @@
         if (response.code == 0) {
             self.selSongsArray = [VLRoomSelSongModel vj_modelArrayWithJson:response.data];
             [self.tableView reloadData];
+            [[NSNotificationCenter defaultCenter]postNotificationName:kUpdateSelSongArrayNotification object:self.selSongsArray];
         }
     } failure:^(NSError * _Nullable error) {
 
     }];
+}
+
+- (NSArray *)getSelSongArray {
+    return self.selSongsArray;
 }
 
 - (void)deleteSongEvent:(VLRoomSelSongModel *)model {
