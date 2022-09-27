@@ -96,6 +96,7 @@
     } else {
         imageNamed = @"ktv_score_C";
     }
+    VLLog(@"Using as score view %@", imageNamed);
     _scoreImgView.image = [UIImage imageNamed:imageNamed];
 }
 

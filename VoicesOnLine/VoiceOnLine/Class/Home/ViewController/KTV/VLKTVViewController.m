@@ -99,6 +99,7 @@ static NSInteger streamId = -1;
 @property (nonatomic, strong) NSString *currentPlayingSongNo;
 
 @property (nonatomic, assign) BOOL isEarOn;
+@property (nonatomic, assign) BOOL isNowMicMuted;
 
 @end
 
@@ -243,19 +244,21 @@ static NSInteger streamId = -1;
 }
 
 - (void)showScoreViewWithScore:(int)score song:(VLRoomSelSongModel *)song {
-    if (score <= 0 && song.isChorus) return;
+    if (score < 0) return;
     if(_scoreView == nil) {
         _scoreView = [[VLPopScoreView alloc] initWithFrame:self.view.bounds withDelegate:self];
         [self.view addSubview:_scoreView];
     }
     VLLog(@"Avg score for the song: %d", score);
     [_scoreView configScore:score];
+    [self.view bringSubviewToFront:_scoreView];
     self.scoreView.hidden = NO;
 }
 
 - (void)popScoreViewDidClickConfirm
 {
-    self.scoreView.hidden = YES;
+    VLLog(@"Using as score view hidding");
+    self.scoreView = nil;
 }
 
 #pragma mark --播放进度回调
@@ -358,6 +361,7 @@ static NSInteger streamId = -1;
     
 
     _isEarOn = NO;
+    _isNowMicMuted = NO;
     //请求已点歌曲
     [self userFirstGetInRoom];
 }
@@ -796,6 +800,7 @@ static NSInteger streamId = -1;
         if(self.isEarOn) {
             [self.RTCkit enableInEarMonitoring:NO];
         }
+        self.isNowMicMuted = YES;
     }
     else{
         AgoraRtcChannelMediaOptions *option = [[AgoraRtcChannelMediaOptions alloc] init];
@@ -804,6 +809,7 @@ static NSInteger streamId = -1;
         if(self.isEarOn) {
             [self.RTCkit enableInEarMonitoring:YES];
         }
+        self.isNowMicMuted = NO;
     }
     [self.MVView validateSingType];
 }
@@ -1597,9 +1603,13 @@ static NSInteger streamId = -1;
         // 4: 在耳返中添加降噪 audio filter。
         // AgoraEarMonitoringFilterNoiseSuppression
         // [self.RTCkit enableInEarMonitoring:setting.soundOn includeAudioFilters:AgoraEarMonitoringFilterBuiltInAudioFilters | AgoraEarMonitoringFilterNoiseSuppression];
-        [self.RTCkit enableInEarMonitoring:setting.soundOn];
         _isEarOn = setting.soundOn;
-        
+        if(self.isNowMicMuted) {
+            [self.RTCkit enableInEarMonitoring:NO];
+        }
+        else {
+            [self.RTCkit enableInEarMonitoring:setting.soundOn];
+        }
     } else if (type == VLKTVValueDidChangedTypeMV) { // MV
         
     } else if (type == VLKTVValueDidChangedRiseFall) { // 升降调
