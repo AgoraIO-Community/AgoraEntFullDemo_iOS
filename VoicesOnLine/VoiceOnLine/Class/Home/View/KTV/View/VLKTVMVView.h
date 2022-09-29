@@ -28,6 +28,10 @@ typedef enum : NSUInteger {
 
 @protocol VLKTVMVViewDelegate <NSObject>
 
+- (BOOL)ktvIsMyselfOnSeat;
+
+- (void)ktvNotifyUserNotOnSeat;
+
 - (void)ktvMVViewDidClickSingType:(VLKTVMVViewSingActionType)singType;
 
 - (void)ktvMVViewDidClick:(VLKTVMVViewActionType)type;

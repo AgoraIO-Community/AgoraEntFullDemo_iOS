@@ -484,6 +484,7 @@ static NSInteger streamId = -1;
     [self.RTCkit muteLocalVideoStream:YES];
     [self.RTCkit muteLocalAudioStream:YES];
     [self.RTCkit setClientRole:AgoraClientRoleAudience];
+    [self resetPlayer];
 }
 
 - (void)setSelfBroadcaster {
@@ -1298,7 +1299,7 @@ static NSInteger streamId = -1;
     }
 }
 
-- (void)playNextSong:(int)isMasterInterrupt {
+- (void)prepareNextSong {
     self.currentTime = 0;
     self.currentPlayingSongNo = nil;
     [self.MVView stop];
@@ -1306,6 +1307,10 @@ static NSInteger streamId = -1;
     [self.MVView cleanMusicText];
     [self.rtcMediaPlayer stop];
     [self resetPlayer];
+}
+
+- (void)playNextSong:(int)isMasterInterrupt {
+    [self prepareNextSong];
     [self deleteSongEvent:self.selSongsArray.firstObject isMasterInterrupt:isMasterInterrupt];
     VLLog(@"RTC media player stop");
 }
@@ -1413,6 +1418,14 @@ static NSInteger streamId = -1;
         }
     } failure:^(NSError * _Nullable error) {
     }];
+}
+
+- (BOOL)ktvIsMyselfOnSeat {
+    return [self currentUserIsOnSeat];
+}
+
+- (void)ktvNotifyUserNotOnSeat {
+    [VLToast toast:NSLocalizedString(@"请先上坐", nil)];
 }
 
 - (void)ktvMVViewDidClickSingType:(VLKTVMVViewSingActionType)singType {
@@ -1753,10 +1766,12 @@ static NSInteger streamId = -1;
         }else if([dict[@"messageType"] intValue] == VLSendMessageTypeDropSeat){  // 下麦消息
             // 下麦模型
             VLRoomSeatModel *seatModel = [VLRoomSeatModel vj_modelWithDictionary:dict];
+            VLRoomSelSongModel *song = self.selSongsArray.count ? self.selSongsArray.firstObject : nil;
+            
             // 被下麦用户刷新UI
             if ([seatModel.userNo isEqualToString:VLUserCenter.user.userNo]) {
                 //当前的座位用户离开RTC通道
-                [self.MVView updateUIWithUserOnSeat:NO song:self.selSongsArray.firstObject];
+                [self.MVView updateUIWithUserOnSeat:NO song:song];
                 self.bottomView.hidden = YES;
                 // 取出对应模型、防止数组越界
                 [self setSelfAudience];
@@ -1766,14 +1781,19 @@ static NSInteger streamId = -1;
                     // 下麦重置占位模型
                     VLRoomSeatModel *indexSeatModel = self.seatsArray[seatModel.onSeat];
                     [indexSeatModel resetLeaveSeat];
-                    [self disableTransmission];
                 }
-            }else{
+                
+                // If I was dropped off mic and I am current singer, then we should play next song.
+                if([member.userId isEqualToString:VLUserCenter.user.id] == NO && [self ifMainSinger:VLUserCenter.user.userNo]) {
+                    [self sendChangeSongMessage];
+                    [self prepareNextSong];
+                    [self getChoosedSongsList:false onlyRefreshList:NO];
+                }
+            } else{
                 for (VLRoomSeatModel *model in self.seatsArray) {
                     if ([seatModel.userNo isEqualToString:model.userNo]) {
                         [model resetLeaveSeat];
                         [self resetChorusStatus:seatModel.userNo];
-                        [self disableTransmission];
                     }
                 }
             }
@@ -1795,10 +1815,13 @@ static NSInteger streamId = -1;
                 [self getChoosedSongsList:false onlyRefreshList:YES];
             }
         } else if([dict[@"messageType"] intValue] == VLSendMessageTypeChangeSong) { //切换歌曲
-            NSLog(@"RTM(RECV) - userID: %@, VLUserNo: %@", member.userId, VLUserCenter.user.userNo);
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self playNextSong:[dict[@"isMasterInterrupt"] intValue]];
-            });
+            NSLog(@"RTM(RECV) - userID: %@, VLUserNo: %@, my userID: %@", member.userId, VLUserCenter.user.userNo, VLUserCenter.user.id);
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                [self playNextSong:[dict[@"isMasterInterrupt"] intValue]];
+//            });
+            self.currentPlayingSongNo = nil;
+            [self prepareNextSong];
+            [self getChoosedSongsList:false onlyRefreshList:NO];
         } else if ([dict[@"messageType"] intValue] == VLSendMessageTypeTellSingerSomeBodyJoin) {//有人加入合唱
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.MVView setJoinInViewHidden];
@@ -1969,7 +1992,9 @@ static NSInteger streamId = -1;
     }else if([dict[@"cmd"] isEqualToString:@"countdown"]){  //倒计时
         int leftSecond = [dict[@"time"] intValue];
         VLRoomSelSongModel *song = self.selSongsArray.count ? self.selSongsArray.firstObject : nil;
-        [self.MVView receiveCountDown:leftSecond onSeat:[self currentUserIsOnSeat] currentSong:song];
+        if(self.currentPlayingSongNo == nil) {
+            [self.MVView receiveCountDown:leftSecond onSeat:[self currentUserIsOnSeat] currentSong:song];
+        }
         VLLog(@"收到倒计时剩余:%d秒",(int)leftSecond);
     }
 //    else if([dict[@"cmd"] isEqualToString:@"TrackMode"]) {
@@ -2401,10 +2426,9 @@ static NSInteger streamId = -1;
 
 - (void)resetPlayer
 {
-    if(self.mutedRemoteUserId) {
-        [self updateRemoteUserMuteStatus:self.mutedRemoteUserId doMute:NO];
-        self.mutedRemoteUserId = nil;
-    }
+    VLLog(@"Agora - updating unmute all user");
+    self.mutedRemoteUserId = nil;
+    [self.RTCkit muteAllRemoteAudioStreams:NO];
 }
 
 @end

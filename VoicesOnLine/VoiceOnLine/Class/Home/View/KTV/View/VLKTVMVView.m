@@ -234,7 +234,7 @@
 
 - (void)receiveCountDown:(int)countDown onSeat:(BOOL)onSeat currentSong:(VLRoomSelSongModel *)currentSong {
     [self updateUIWithUserOnSeat:onSeat song:currentSong];
-    if (onSeat) {
+    {
         if (countDown > 0) {
             self.robMicrophoneView.hidden = NO;
             if (currentSong) {
@@ -256,6 +256,9 @@
     NSString *songText = [NSString stringWithFormat:@"%@-%@",song.songName,song.singer];
     self.musicTitleLabel.text = songText;
     self.noBodyOnLineView.hidden = YES;
+    
+    [self configLrcViewUIWithCurrentSong:song];
+    
     if (!onSeat) return;
     
     //有正在演唱的歌曲
@@ -337,11 +340,20 @@
 #pragma mark - 合唱代理
 
 - (void)robViewChorusAction {
-    [self.robMicroPhoneTimer invalidate];
-    self.robMicroPhoneTimer = nil;
-    if ([self.delegate respondsToSelector:@selector(ktvMVViewDidClickSingType:)]) {
-        self.robMicrophoneView.hidden = YES;
-        [self.delegate ktvMVViewDidClickSingType:VLKTVMVViewSingActionTypeJoinChorus];
+    if([self.delegate respondsToSelector:@selector(ktvIsMyselfOnSeat)]) {
+        if([self.delegate ktvIsMyselfOnSeat]) {
+            [self.robMicroPhoneTimer invalidate];
+            self.robMicroPhoneTimer = nil;
+            if ([self.delegate respondsToSelector:@selector(ktvMVViewDidClickSingType:)]) {
+                self.robMicrophoneView.hidden = YES;
+                [self.delegate ktvMVViewDidClickSingType:VLKTVMVViewSingActionTypeJoinChorus];
+            }
+        }
+        else {
+            if([self.delegate respondsToSelector:@selector(ktvNotifyUserNotOnSeat)]) {
+                [self.delegate ktvNotifyUserNotOnSeat];
+            }
+        }
     }
 }
 
