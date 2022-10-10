@@ -166,7 +166,7 @@
     if (!_itemsArray) {
         _itemsArray = @[
             @{@"itemImgStr":@"mine_screct_icon",@"titleStr":NSLocalizedString(@"用户协议", nil)},
-            @{@"itemImgStr":@"mine_userRule_icon",@"titleStr":NSLocalizedString(@"隐私协议", nil)},
+            @{@"itemImgStr":@"mine_userRule_icon",@"titleStr":NSLocalizedString(@"隐私政策", nil)},
             @{@"itemImgStr":@"mine_aboutus_icon",@"titleStr":NSLocalizedString(@"关于我们", nil)},
             @{@"itemImgStr":@"mine_logout_icon",@"titleStr":NSLocalizedString(@"退出登录", nil)},
             @{@"itemImgStr":@"mine_quit_icon",@"titleStr":NSLocalizedString(@"注销账号", nil)},

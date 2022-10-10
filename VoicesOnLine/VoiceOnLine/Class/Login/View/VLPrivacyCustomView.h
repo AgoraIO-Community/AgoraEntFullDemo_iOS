@@ -11,6 +11,7 @@ typedef enum : NSUInteger {
     VLPrivacyClickTypeAgree = 0,
     VLPrivacyClickTypeDisagree,
     VLPrivacyClickTypePrivacy,
+    VLPrivacyClickTypeUserAgreement,
 } VLPrivacyClickType;
 
 @protocol VLPrivacyCustomViewDelegate <NSObject>

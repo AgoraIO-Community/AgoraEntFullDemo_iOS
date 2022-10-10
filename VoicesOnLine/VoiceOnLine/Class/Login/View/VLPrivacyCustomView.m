@@ -118,7 +118,7 @@
             kWeakSelf(self)
             [_mattrStr yy_setTextHighlightRange:range1 color:UIColorMakeWithHex(@"#009FFF") backgroundColor:[UIColor clearColor] tapAction:^(UIView * _Nonnull containerView, NSAttributedString * _Nonnull text, NSRange range, CGRect rect) {
                 if ([weakself.delegate respondsToSelector:@selector(privacyCustomViewDidClick:)]) {
-                    [weakself.delegate privacyCustomViewDidClick:VLPrivacyClickTypePrivacy];
+                    [weakself.delegate privacyCustomViewDidClick:VLPrivacyClickTypeUserAgreement];
                 }
             }];
         }

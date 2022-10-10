@@ -10,7 +10,7 @@
 typedef void (^completeBlock_success)(VLResponseDataModel * _Nonnull response);
 typedef void (^completeImageBlock_success)(UIImage * _Nonnull image);
 /** NEI ERROR */
-typedef void (^errorBlock_fail)(NSError * _Nullable error);
+typedef void (^errorBlock_fail)(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task);
 /** LOADING PREGRESS */
 typedef void (^progressBlock)(CGFloat value);
 

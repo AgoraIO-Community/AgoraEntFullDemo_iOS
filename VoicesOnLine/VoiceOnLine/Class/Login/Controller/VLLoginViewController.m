@@ -20,7 +20,7 @@
 @property (nonatomic, strong) VLPrivacyCustomView *privacyCustomView;
 @property (nonatomic, strong) UIButton *loginButton;
 @property (nonatomic, strong) UIButton *agreeButton;    // 同意按钮
-@property (nonatomic, strong) YYLabel *privacyLabel;    // 隐私协议
+@property (nonatomic, strong) YYLabel *privacyLabel;    // 隐私政策
 @property (nonatomic, strong) LSTPopView *popView;
 @property (nonatomic, assign) bool policyAgreed;
 
@@ -157,6 +157,10 @@
             [self pushToWebView:kURLPathH5Privacy];
             [self closePrivaxyAlertView];
             break;
+        case VLPrivacyClickTypeUserAgreement:
+            [self pushToWebView:kURLPathH5UserAgreement];
+            [self closePrivaxyAlertView];
+            break;
         default:
             break;
     }
@@ -181,7 +185,7 @@
         } else {
             [VLToast toast:response.message];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
     }];
 }
 
@@ -285,7 +289,7 @@
                 [VLToast toast:NSLocalizedString(@"验证码校验失败，请重试", nil)];
             })
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
         dispatch_main_async_safe(^{
             [VLToast toast:NSLocalizedString(@"验证码校验失败，请重试", nil)];
         })

@@ -18,6 +18,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithFrame:(CGRect)frame withDelegate:(id<VLKTVTopViewDelegate>)delegate;
 
+- (void)setNetworkQuality:(int)quality;
+
 @property (nonatomic, strong) VLRoomListModel *listModel;
 
 @end

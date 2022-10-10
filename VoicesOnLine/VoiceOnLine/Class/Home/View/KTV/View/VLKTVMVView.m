@@ -234,7 +234,7 @@
 
 - (void)receiveCountDown:(int)countDown onSeat:(BOOL)onSeat currentSong:(VLRoomSelSongModel *)currentSong {
     [self updateUIWithUserOnSeat:onSeat song:currentSong];
-    {
+    if(onSeat) {
         if (countDown > 0) {
             self.robMicrophoneView.hidden = NO;
             if (currentSong) {

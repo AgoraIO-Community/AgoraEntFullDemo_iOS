@@ -111,14 +111,14 @@
                     [VLToast toast:NSLocalizedString(@"加入房间失败", nil)];
                 }
                 
-            } failure:^(NSError * _Nullable error) {
+            } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
                 [VLToast toast:NSLocalizedString(@"加入房间失败", nil)];
             }];
             
         }else{
             [VLToast toast:response.message];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
         [VLToast toast:NSLocalizedString(@"创建房间失败", nil)];
     }];
 }

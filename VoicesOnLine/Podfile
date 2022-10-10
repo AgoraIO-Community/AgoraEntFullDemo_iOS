@@ -17,13 +17,10 @@ def all_pods
   pod 'SVProgressHUD'
   # 加载图片
   pod 'SDWebImage', '~> 5.0.3'
-  # 架构
-  pod 'QMUIKit', '~> 4.4.3'
   # Model
   pod 'YYModel', '~> 1.0.4'
   pod 'YYCache', '~> 1.0.4'
   pod 'YYCategories', '~> 1.0.4'
-  pod 'YYText', '~> 1.0.7'
   pod 'libextobjc', '~> 0.4.1'
   pod 'MJExtension'
   # 键盘

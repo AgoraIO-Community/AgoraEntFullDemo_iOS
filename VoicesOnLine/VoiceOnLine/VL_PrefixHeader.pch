@@ -11,7 +11,7 @@
 #import "VLAPIRequest.h"
 #import "MJRefresh.h"
 
-#import <QMUIKit/QMUIKit.h>
+#import "QMUIKit.h"
 #import "QDCommonUI.h"
 #import "QDUIHelper.h"
 #import "QDThemeManager.h"
@@ -36,7 +36,7 @@
 
 //布局
 #import <Masonry.h>
-#import <YYText/YYText.h>
+#import "YYText.h"
 //#import <JXCategoryView.h>
 
 //类别

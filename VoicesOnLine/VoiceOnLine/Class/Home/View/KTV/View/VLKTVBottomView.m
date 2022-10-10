@@ -93,9 +93,17 @@ typedef void (^actionSuccess)(BOOL ifSuccess);
 
 - (void)bottomBtnClickEvent:(VLHotSpotBtn *)sender {
     if (sender.tag == VLKTVBottomBtnClickTypeAudio) {
+        NSString *setStatus = @"";
+        if(self.isSelfMuted == 1) {
+            setStatus = @"0";
+        }
+        else {
+            setStatus = @"1";
+        }
         NSDictionary *param = @{
             @"roomNo": self.roomNo,
-            @"userNo": VLUserCenter.user.userNo
+            @"userNo": VLUserCenter.user.userNo,
+            @"setStatus": setStatus
         };
         [VLAPIRequest getRequestURL:kURLIfSetMute parameter:param showHUD:NO success:^(VLResponseDataModel * _Nonnull response) {
             if (response.code == 0) {
@@ -121,14 +129,22 @@ typedef void (^actionSuccess)(BOOL ifSuccess);
                 
                
             }
-        } failure:^(NSError * _Nullable error) {
+        } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
             
         }];
     
     }else if (sender.tag == VLKTVBottomBtnClickTypeVideo){
+        NSString *setStatus = @"";
+        if(self.isVideoMuted == 1) {
+            setStatus = @"0";
+        }
+        else {
+            setStatus = @"1";
+        }
         NSDictionary *param = @{
             @"roomNo": self.roomNo,
-            @"userNo": VLUserCenter.user.userNo
+            @"userNo": VLUserCenter.user.userNo,
+            @"setStatus": setStatus
         };
         [VLAPIRequest getRequestURL:kURLIfOpenVido parameter:param showHUD:NO success:^(VLResponseDataModel * _Nonnull response) {
             if (response.code == 0) {
@@ -151,7 +167,7 @@ typedef void (^actionSuccess)(BOOL ifSuccess);
                     [self.videoBtn setImage:UIImageMake(@"ktv_video_muteIcon") forState:UIControlStateNormal];
                 }
             }
-        } failure:^(NSError * _Nullable error) {
+        } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
             
         }];
     }else{

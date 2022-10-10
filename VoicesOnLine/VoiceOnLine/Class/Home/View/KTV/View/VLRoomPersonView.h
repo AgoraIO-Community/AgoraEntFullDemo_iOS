@@ -21,6 +21,8 @@ typedef enum : NSUInteger {
 //下麦
 - (void)roomMasterMakePersonDropOnLineWithIndex:(NSInteger)seatIndex withDropType:(VLRoomSeatDropType)type;
 
+- (BOOL)ifMyCameraIsOpened;
+
 @end
 
 @interface VLRoomPersonView : UIView

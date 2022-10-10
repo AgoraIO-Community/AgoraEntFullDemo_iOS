@@ -97,7 +97,7 @@
 //            [self loadChoosedSongWithRoomNo:self.roomNo];
             [[NSNotificationCenter defaultCenter]postNotificationName:kMakeTopNotification object:nil];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
         
     }];
 }
@@ -114,7 +114,7 @@
             [self.tableView reloadData];
             [[NSNotificationCenter defaultCenter]postNotificationName:kUpdateSelSongArrayNotification object:self.selSongsArray];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
 
     }];
 }
@@ -135,7 +135,7 @@
 //            [self loadChoosedSongWithRoomNo:self.roomNo];
             [[NSNotificationCenter defaultCenter]postNotificationName:kDeleteSuccessNotification object:nil];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
         
     }];
 }

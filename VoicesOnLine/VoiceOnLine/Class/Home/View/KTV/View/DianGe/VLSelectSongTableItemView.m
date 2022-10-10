@@ -112,11 +112,11 @@
                     [self.tableView.mj_header endRefreshing];
                 }
                 
-            } failure:^(NSError * _Nullable error) {
+            } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
                 [self.tableView.mj_header endRefreshing];
             }];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
         
     }];
 }
@@ -169,7 +169,7 @@
         else {
             [self dianGeFailedWithModel:model];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
         [self dianGeFailedWithModel:model];
     }];
 }

@@ -53,8 +53,9 @@ typedef enum : NSUInteger {
     VLSendMessageTypeTellSingerSomeBodyJoin = 11, //通知主唱有人加入合唱
     VLSendMessageTypeTellJoinUID = 12, //通知合唱者 主唱UID
     VLSendMessageTypeSoloSong = 13,  //独唱
-    VLSendMessageTypeSeeScore = 14   //观众看到分数
+    VLSendMessageTypeSeeScore = 14,   //观众看到分数
     
+    VLSendMessageAuditFail = 20,
 } VLSendMessageType;
 
 static NSInteger streamId = -1;
@@ -100,6 +101,7 @@ static NSInteger streamId = -1;
 
 @property (nonatomic, assign) BOOL isEarOn;
 @property (nonatomic, assign) BOOL isNowMicMuted;
+@property (nonatomic, assign) BOOL isNowCameraMuted;
 
 @end
 
@@ -109,6 +111,7 @@ static NSInteger streamId = -1;
     [super viewDidLoad];
     self.view.backgroundColor = UIColor.blackColor;
 
+    [self resetMicAndCameraStatus];
     [self createChannel:self.roomModel.roomNo];
     
     
@@ -359,11 +362,15 @@ static NSInteger streamId = -1;
     [super viewDidAppear:animated];
     [UIViewController popGestureClose:self];
     
-
     _isEarOn = NO;
-    _isNowMicMuted = NO;
     //请求已点歌曲
     [self userFirstGetInRoom];
+}
+
+- (void)resetMicAndCameraStatus
+{
+    _isNowMicMuted = NO;
+    _isNowCameraMuted = YES;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -446,20 +453,31 @@ static NSInteger streamId = -1;
     }
     
     [self.RTCkit enableVideo];
-    [self.RTCkit enableLocalVideo:YES];
-
-//    [self.RTCkit startPreview];
+    [self.RTCkit enableLocalVideo:NO];
+    
     [self.RTCkit enableAudio];
+    
     if (ifRequestOnSeat) {
         [self setSelfBroadcaster];
     }else{
         [self setSelfAudience];
-
     }
     AgoraVideoEncoderConfiguration *encoderConfiguration = [[AgoraVideoEncoderConfiguration alloc] initWithSize:CGSizeMake(100, 100) frameRate:AgoraVideoFrameRateFps7 bitrate:20 orientationMode:AgoraVideoOutputOrientationModeFixedLandscape mirrorMode:AgoraVideoMirrorModeAuto];
     [self.RTCkit setVideoEncoderConfiguration:encoderConfiguration];
     VLLog(@"Agora - joining RTC channel with token: %@, for roomNo: %@, with uid: %@", VLUserCenter.user.agoraRTCToken, self.roomModel.roomNo, VLUserCenter.user.id);
-    [self.RTCkit joinChannelByToken:VLUserCenter.user.agoraRTCToken channelId:self.roomModel.roomNo info:nil uid:[VLUserCenter.user.id integerValue] joinSuccess:^(NSString * _Nonnull channel, NSUInteger uid, NSInteger elapsed) {
+//    [self.RTCkit joinChannelByToken:VLUserCenter.user.agoraRTCToken
+//                          channelId:self.roomModel.roomNo info:nil
+//                                uid:[VLUserCenter.user.id integerValue]
+//                        joinSuccess:^(NSString * _Nonnull channel, NSUInteger uid, NSInteger elapsed) {
+    AgoraRtcChannelMediaOptions *options = [AgoraRtcChannelMediaOptions new];
+    options.publishCameraTrack = [AgoraRtcBoolOptional of:NO];
+    options.publishAudioTrack = [AgoraRtcBoolOptional of:ifRequestOnSeat];
+    
+    [self.RTCkit joinChannelByToken:VLUserCenter.user.agoraRTCToken
+                          channelId:self.roomModel.roomNo
+                                uid:[VLUserCenter.user.id integerValue]
+                       mediaOptions:options
+                        joinSuccess:^(NSString * _Nonnull channel, NSUInteger uid, NSInteger elapsed) {
         VLLog(@"Agora - 加入RTC成功");
        
         [self setUpUI];
@@ -577,7 +595,7 @@ static NSInteger streamId = -1;
             label.font = UIFontBoldMake(16);
         })
         .LeeAddContent(^(UILabel *label) {
-            label.text = NSLocalizedString(@"确定解散该房间吗", nil);
+            label.text = NSLocalizedString(@"确定解散该房间吗？", nil);
             label.textColor = UIColorMakeWithHex(@"#6C7192");
             label.font = UIFontMake(14);
             
@@ -620,7 +638,7 @@ static NSInteger streamId = -1;
             label.font = UIFontBoldMake(16);
         })
         .LeeAddContent(^(UILabel *label) {
-            label.text = NSLocalizedString(@"确定退出房间？", nil);
+            label.text = NSLocalizedString(@"确定退出该房间吗？", nil);
             label.textColor = UIColorMakeWithHex(@"#6C7192");
             label.font = UIFontMake(14);
             
@@ -695,7 +713,7 @@ static NSInteger streamId = -1;
                 }];
             }
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
         
     }];
 }
@@ -741,7 +759,7 @@ static NSInteger streamId = -1;
                 // 房间已关闭
                 [self popForceLeaveRoom];
             }
-        } failure:^(NSError * _Nullable error) {
+        } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
             
         }];
     }else{
@@ -764,7 +782,7 @@ static NSInteger streamId = -1;
                 }
             }
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
 
     }];
 }
@@ -792,11 +810,20 @@ static NSInteger streamId = -1;
     }
 }
 
+- (void)enableMic
+{
+    AgoraRtcChannelMediaOptions *option = [[AgoraRtcChannelMediaOptions alloc] init];
+    option.publishAudioTrack = [AgoraRtcBoolOptional of:self.isNowMicMuted];
+    option.publishCameraTrack = [AgoraRtcBoolOptional of:(self.isNowCameraMuted?NO:YES)];
+    [self.RTCkit updateChannelWithMediaOptions:option];
+}
+
 #pragma mark --底部按钮的点击事件
 - (void)bottomSetAudioMute:(NSInteger)ifMute{
     if (ifMute == 1) {
         AgoraRtcChannelMediaOptions *option = [[AgoraRtcChannelMediaOptions alloc] init];
         option.publishAudioTrack = [AgoraRtcBoolOptional of:NO];
+        option.publishCameraTrack = [AgoraRtcBoolOptional of:(self.isNowCameraMuted?NO:YES)];
         [self.RTCkit updateChannelWithMediaOptions:option];
         if(self.isEarOn) {
             [self.RTCkit enableInEarMonitoring:NO];
@@ -806,6 +833,7 @@ static NSInteger streamId = -1;
     else{
         AgoraRtcChannelMediaOptions *option = [[AgoraRtcChannelMediaOptions alloc] init];
         option.publishAudioTrack = [AgoraRtcBoolOptional of:YES];
+        option.publishCameraTrack = [AgoraRtcBoolOptional of:(self.isNowCameraMuted?NO:YES)];
         [self.RTCkit updateChannelWithMediaOptions:option];
         if(self.isEarOn) {
             [self.RTCkit enableInEarMonitoring:YES];
@@ -819,11 +847,18 @@ static NSInteger streamId = -1;
     if (ifOpen == 1) {
         [self.RTCkit enableLocalVideo:YES];
         [self.RTCkit muteLocalVideoStream:NO];
+        _isNowCameraMuted = NO;
     }
     else{
         [self.RTCkit enableLocalVideo:NO];
         [self.RTCkit muteLocalVideoStream:YES];
+        _isNowCameraMuted = YES;
     }
+}
+
+- (BOOL)ifMyCameraIsOpened
+{
+    return self.isNowCameraMuted?NO:YES;
 }
 
 - (void)bottomAudionBtnAction:(NSInteger)ifMute {
@@ -937,7 +972,7 @@ static NSInteger streamId = -1;
         }else{
             [VLToast toast:response.message];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
         [VLToast toast:NSLocalizedString(@"修改背景失败", nil)];
     }];
 }
@@ -1032,6 +1067,8 @@ static NSInteger streamId = -1;
                             [self playNextSong:0];
                         }
                         
+                        [self resetMicAndCameraStatus];
+                        
                         [self setSelfAudience];
                     }
                     else if([self ifIAmRoomMaster] && [self ifMainSinger:userNo]==YES) {
@@ -1050,7 +1087,7 @@ static NSInteger streamId = -1;
                 }
             }];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
 
     }];
     
@@ -1416,7 +1453,7 @@ static NSInteger streamId = -1;
             
             [self getChoosedSongsList:false onlyRefreshList:NO];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
     }];
 }
 
@@ -1469,7 +1506,7 @@ static NSInteger streamId = -1;
     [VLAPIRequest getRequestURL:kURLRoomJoinChorus parameter:param showHUD:NO success:^(VLResponseDataModel * _Nonnull response) {
         if (response.code == 0) {
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
     }];
 }
 
@@ -1737,6 +1774,7 @@ static NSInteger streamId = -1;
     if (!([dict[@"roomNo"] isEqualToString:self.roomModel.roomNo])) {
         return;
     }
+    
     if (message.type == AgoraRtmMessageTypeRaw) {
         if ([dict[@"messageType"] intValue] == VLSendMessageTypeOnSeat) { //上麦消息
             VLRoomSeatModel *seatModel = [VLRoomSeatModel vj_modelWithDictionary:dict];
@@ -1876,6 +1914,14 @@ static NSInteger streamId = -1;
             double voicePitch = [dict[@"pitch"] doubleValue];
             [self.MVView setVoicePitch:@[@(voicePitch)]];
         }
+        else if([dict[@"messageType"] intValue] == VLSendMessageAuditFail) {
+            VLLog(@"Agora - Received audit message");
+            if ([dict[@"userNo"] isEqualToString:VLUserCenter.user.userNo]) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [VLToast toast:NSLocalizedString(@"您的行为存在涉嫌违法违规内容，请规范行为。", nil)];
+                });
+            }
+        }
     }
 }
 - (void)channel:(AgoraRtmChannel * _Nonnull)channel attributeUpdate:(NSArray< AgoraRtmChannelAttribute *> * _Nonnull)attributes {
@@ -2007,6 +2053,34 @@ static NSInteger streamId = -1;
 //    }
 }
 
+// Network quality callbacks
+- (void)rtcEngine:(AgoraRtcEngineKit * _Nonnull)engine
+   networkQuality:(NSUInteger)uid
+        txQuality:(AgoraNetworkQuality)txQuality
+        rxQuality:(AgoraNetworkQuality)rxQuality
+{
+//    VLLog(@"Agora - network quality : %lu", txQuality);
+    
+    if(uid == [VLUserCenter.user.id intValue]) {
+        if(txQuality == AgoraNetworkQualityExcellent || txQuality == AgoraNetworkQualityGood) {
+            // Good quality
+            [self.topView setNetworkQuality:0];
+        }
+        else if(txQuality == AgoraNetworkQualityPoor || txQuality == AgoraNetworkQualityBad) {
+            // Bad quality
+            [self.topView setNetworkQuality:1];
+        }
+        else if(txQuality == AgoraNetworkQualityVBad || txQuality == AgoraNetworkQualityDown) {
+            // Barely usable
+            [self.topView setNetworkQuality:2];
+        }
+        else {
+            // Unknown or detecting
+            [self.topView setNetworkQuality:3];
+        }
+    }
+}
+
 #pragma mark -- 房间麦位点击事件(上麦)
 - (void)seatItemClickAction:(VLRoomSeatModel *)model withIndex:(NSInteger)seatIndex{
     [self requestOnSeatWithIndex:seatIndex];
@@ -2023,6 +2097,7 @@ static NSInteger streamId = -1;
     [VLAPIRequest getRequestURL:kURLRoomOnSeat parameter:param showHUD:YES success:^(VLResponseDataModel * _Nonnull response) {
         @strongify(self)
         if (response.code == 0) {
+            
             NSDictionary *dict = @{
                 @"messageType":@(VLSendMessageTypeOnSeat),
                 @"headUrl":VLUserCenter.user.headUrl ? VLUserCenter.user.headUrl:@"",
@@ -2066,6 +2141,9 @@ static NSInteger streamId = -1;
                         self.bottomView.hidden = NO;
                         [self.bottomView resetBtnStatus];
                         [self.MVView updateUIWithUserOnSeat:YES song:self.selSongsArray.firstObject];
+                        if(![self ifIAmRoomMaster]) {
+                            [self enableMic];
+                        }
                         [self.RTCkit setClientRole:AgoraClientRoleBroadcaster];
                         
                         [self bottomSetAudioMute:0];
@@ -2073,7 +2151,7 @@ static NSInteger streamId = -1;
                 }
             }];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
 
     }];
 }
@@ -2161,7 +2239,7 @@ static NSInteger streamId = -1;
                 [self startSinging];
             }
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
         
     }];
 }
@@ -2218,7 +2296,7 @@ static NSInteger streamId = -1;
               });
               [self.MVView updateUIWithUserOnSeat:NO song:selSongModel];
           }
-      } failure:^(NSError * _Nullable error) {
+      } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
   }];
 }
 
@@ -2235,7 +2313,7 @@ static NSInteger streamId = -1;
             //刷新MV里的视图
             [self.MVView updateUIWithSong:self.selSongsArray.firstObject onSeat:[self currentUserIsOnSeat]];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
         
     }];
 }
@@ -2273,12 +2351,12 @@ static NSInteger streamId = -1;
                             [self loadMusicWithURL:selSongModel.songUrl lrc:selSongModel.lyric songCode:selSongModel.songNo];
                         });
                     }
-                } failure:^(NSError * _Nullable error) {
+                } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
                     
                 }];
             }
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
     }];
 }
 
@@ -2299,7 +2377,7 @@ static NSInteger streamId = -1;
         if (response.code == 0) {
         }else{
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
         
     }];
 }

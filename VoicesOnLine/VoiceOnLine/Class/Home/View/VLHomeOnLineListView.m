@@ -89,7 +89,7 @@
             [self.listCollectionView.mj_header endRefreshing];
             [self.listCollectionView.mj_footer endRefreshing];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
         [self.listCollectionView.mj_header endRefreshing];
         [self.listCollectionView.mj_footer endRefreshing];
     }];

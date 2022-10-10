@@ -4,6 +4,7 @@
 //
 
 #import "VLAPIRequest.h"
+#import "AppDelegate+Config.h"
 
 #define NSStringFormat(format,...) [NSString stringWithFormat:format,##__VA_ARGS__]
 
@@ -77,6 +78,8 @@ static AFHTTPSessionManager *_sessionManager;
             VLLog(@"\n完成请求:\n%@\nheader:\n%@\n参数:\n%@\n响应数据:%@",task.currentRequest.URL,_sessionManager.requestSerializer.HTTPRequestHeaders,paramenter,error);
             [MBProgressHUD hideHUDForView:window animated:true];
             [self requestError:errorBlock error:error task:task];
+            NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse *)task.response;
+            if (urlResponse.statusCode == 401) [self setLoginVC];
         }];
         
     } else if (type == VLRequestTypePost) {
@@ -94,6 +97,8 @@ static AFHTTPSessionManager *_sessionManager;
             VLLog(@"\n完成请求:\n%@\nheader:\n%@\n参数:\n%@\n响应数据:%@",task.currentRequest.URL,_sessionManager.requestSerializer.HTTPRequestHeaders,paramenter,error);
             [MBProgressHUD hideHUDForView:window animated:true];
             [self requestError:errorBlock error:error task:task];
+            NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse *)task.response;
+            if (urlResponse.statusCode == 401) [self setLoginVC];
         }];
         [self addSessionTask:sessionTask];
     }
@@ -263,7 +268,7 @@ static AFHTTPSessionManager *_sessionManager;
     } completionHandler:^(NSURLResponse * _Nonnull response, NSURL * _Nullable filePath, NSError * _Nullable error) {
         
         [[self allSessionTask] removeObject:downloadTask];
-        if(errorBlock && error) {errorBlock(error) ; return ;};
+        if(errorBlock && error) {errorBlock(error, nil) ; return ;};
         completeBlock ? completeBlock(filePath.absoluteString /** NSURL->NSString*/) : nil;
         
     }];
@@ -287,6 +292,10 @@ static AFHTTPSessionManager *_sessionManager;
 
 #pragma mark - 处理token失效后切换登录界面
 + (void)setLoginVC {
+    [VLToast toast:NSLocalizedString(@"Token已失效，请重新登录", nil)];
+    // TODO: goto login page
+    [[VLUserCenter center] logout];
+    [[VLGlobalHelper app] configRootViewController];
 }
 
 // 请求进度
@@ -322,7 +331,7 @@ static AFHTTPSessionManager *_sessionManager;
 
 // 请求失败
 + (void)requestError:(errorBlock_fail)errorBlock error:(NSError *)error task:(NSURLSessionDataTask *)task{
-    errorBlock(error);
+    errorBlock(error, task);
     task ? [self removeSessionTask:task] : nil;
 }
 

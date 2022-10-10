@@ -43,8 +43,8 @@ static NSString * const kURLRoomJoinChorus = @"/api-room/roomSong/chorus"; // �
 static NSString * const kURLRoomSwitchSong = @"/api-room/roomSong/switchSong"; //切歌
 
 #pragma mark - H5相关
-static NSString * const kURLPathH5UserAgreement = @"https://beidou-releases.oss-cn-zhangjiakou.aliyuncs.com/agora/static/user_agreement.html";
-static NSString * const kURLPathH5Privacy = @"https://beidou-releases.oss-cn-zhangjiakou.aliyuncs.com/agora/static/privacy_policy.html";
+static NSString * const kURLPathH5UserAgreement = @"https://accktvpic.oss-cn-beijing.aliyuncs.com/pic/meta/demo/fulldemoStatic/privacy/service.html";
+static NSString * const kURLPathH5Privacy = @"https://accktvpic.oss-cn-beijing.aliyuncs.com/pic/meta/demo/fulldemoStatic/privacy/privacy.html";
 static NSString * const kURLPathH5AboutUS = @"https://www.agora.io/cn/about-us/";
 
 #endif /* VLURLPathConfig_h */

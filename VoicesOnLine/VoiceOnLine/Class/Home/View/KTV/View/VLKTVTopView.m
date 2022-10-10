@@ -72,4 +72,25 @@
     }
 }
 
+// TODO: icon for OK and bad.
+- (void)setNetworkQuality:(int)quality
+{
+    if(quality == 0) {
+        [self.networkStatusBtn setImage:UIImageMake(@"ktv_network_wellIcon") forState:UIControlStateNormal];
+        [self.networkStatusBtn setTitle:NSLocalizedString(@"本机网络好", nil) forState:UIControlStateNormal];
+    }
+    else if (quality == 1) {
+        [self.networkStatusBtn setImage:UIImageMake(@"ktv_network_okIcon") forState:UIControlStateNormal];
+        [self.networkStatusBtn setTitle:NSLocalizedString(@"本机网络良", nil) forState:UIControlStateNormal];
+    }
+    else if(quality == 2) {
+        [self.networkStatusBtn setImage:UIImageMake(@"ktv_network_badIcon") forState:UIControlStateNormal];
+        [self.networkStatusBtn setTitle:NSLocalizedString(@"本机网络差", nil) forState:UIControlStateNormal];
+    }
+    else {
+        [self.networkStatusBtn setImage:UIImageMake(@"ktv_network_wellIcon") forState:UIControlStateNormal];
+        [self.networkStatusBtn setTitle:NSLocalizedString(@"本机网络好", nil) forState:UIControlStateNormal];
+    }
+}
+
 @end

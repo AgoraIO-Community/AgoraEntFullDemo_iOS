@@ -38,7 +38,7 @@
     
     self.avatarCoverBgView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, VLREALVALUE_WIDTH(54), VLREALVALUE_WIDTH(54))];
     self.avatarCoverBgView.userInteractionEnabled = YES;
-    self.avatarCoverBgView.backgroundColor = UIColorMakeWithRGBA(0, 0, 0, 0.6);
+    self.avatarCoverBgView.backgroundColor = UIColorMakeWithRGBA(0, 0, 0, 0);
     self.avatarCoverBgView.layer.cornerRadius = VLREALVALUE_WIDTH(54)*0.5;
     self.avatarCoverBgView.layer.masksToBounds = YES;
     [self.contentView addSubview:self.avatarCoverBgView];

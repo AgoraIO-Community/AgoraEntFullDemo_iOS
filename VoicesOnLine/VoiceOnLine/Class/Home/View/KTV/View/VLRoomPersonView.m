@@ -77,7 +77,11 @@
             if ([seatModel.id isEqual:VLUserCenter.user.id]) {
                 [self.RTCkit setupLocalVideo:videoCanvas];
 //                [self.RTCkit enableVideo];
-                [self.RTCkit startPreview];
+                if (self.delegate && [self.delegate respondsToSelector:@selector(ifMyCameraIsOpened)]) {
+                    if([self.delegate ifMyCameraIsOpened]) {
+                        [self.RTCkit startPreview];
+                    }
+                }
             }
             else{
                 [self.RTCkit setupRemoteVideo:videoCanvas];
@@ -105,7 +109,11 @@
                 if ([model.id isEqual:VLUserCenter.user.id]) {
 //                    [self.RTCkit enableVideo];
                     [self.RTCkit setupLocalVideo:videoCanvas];
-                    [self.RTCkit startPreview];
+                    if (self.delegate && [self.delegate respondsToSelector:@selector(ifMyCameraIsOpened)]) {
+                        if([self.delegate ifMyCameraIsOpened]) {
+                            [self.RTCkit startPreview];
+                        }
+                    }
                 }
                 else{
                     [self.RTCkit setupRemoteVideo:videoCanvas];

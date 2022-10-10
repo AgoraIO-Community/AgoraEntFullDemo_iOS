@@ -1,11 +1,12 @@
 {
   "images" : [
     {
+      "filename" : "ktv_network_badIcon.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "ktv_netWork_badIcon@2x.png",
+      "filename" : "ktv_network_badIcon@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },

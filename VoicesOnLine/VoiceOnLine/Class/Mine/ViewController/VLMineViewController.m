@@ -151,17 +151,17 @@
     .LeeAddAction(^(LEEAction * _Nonnull action) {
         action.type = LEEActionTypeDefault;
         action.title = NSLocalizedString(@"上传头像", nil);
-        action.height = 40;
+        action.height = 20;
         action.titleColor = [UIColor whiteColor];
         action.font = VLUIFontMake(14);
     })
-    .LeeAddAction(^(LEEAction * _Nonnull action) {
-        action.type = LEEActionTypeDefault;
-        action.title = NSLocalizedString(@"拍照上传", nil);
-        action.clickBlock = ^{
-            [weakself presentviewcontrollerWithSourceType:UIImagePickerControllerSourceTypeCamera];
-        };
-    })
+//    .LeeAddAction(^(LEEAction * _Nonnull action) {
+//        action.type = LEEActionTypeDefault;
+//        action.title = NSLocalizedString(@"拍照上传", nil);
+//        action.clickBlock = ^{
+//            [weakself presentviewcontrollerWithSourceType:UIImagePickerControllerSourceTypeCamera];
+//        };
+//    })
     .LeeAddAction(^(LEEAction * _Nonnull action) {
         action.type = LEEActionTypeDefault;
         action.title = NSLocalizedString(@"本地相册上传", nil);
@@ -222,7 +222,7 @@
         if (response.code == 0) {
 //            VLLoginModel *userInfo = [VLLoginModel vj_modelWithDictionary:response.data];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
         
     }];
 }
@@ -242,7 +242,7 @@
         }else{
             [VLToast toast:response.message];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
     }];
 }
 
@@ -261,7 +261,7 @@
         }else{
             [VLToast toast:response.message];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
     }];
 }
 
@@ -292,7 +292,7 @@
                 if (response.code == 0) {
                     [weakSelf userLogout];
                 }
-            } failure:^(NSError * _Nullable error) {
+            } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
             }];
         };
     })
@@ -374,7 +374,7 @@
         else {
             [VLToast toast:response.message];
         }
-    } failure:^(NSError * _Nullable error) {
+    } failure:^(NSError * _Nullable error, NSURLSessionDataTask * _Nullable task) {
     }];
 }
 

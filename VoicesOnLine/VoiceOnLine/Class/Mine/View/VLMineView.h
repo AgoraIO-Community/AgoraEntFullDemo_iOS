@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef enum : NSUInteger {
     VLMineViewClickTypeUserProtocol = 0,   // 用户协议
-    VLMineViewClickTypePrivacyProtocol,    // 隐私协议
+    VLMineViewClickTypePrivacyProtocol,    // 隐私政策
     VLMineViewClickTypeAboutUS,            // 关于我们
     VLMineViewClickTypeLogout,             // 退出登录
     VLMineViewClickTypeDestroyAccount,     // 注销账号
