@@ -145,6 +145,37 @@
     .LeeShow();
 }
 
+
+- (BOOL)getLibraryAccess {
+    return [NSUserDefaults.standardUserDefaults boolForKey:@"LibraryAccess"];
+}
+
+- (void)setLibraryAccess:(BOOL)isOpen {
+    [NSUserDefaults.standardUserDefaults setBool:isOpen forKey:@"LibraryAccess"];
+}
+
+- (void)showAlert {
+    UIAlertController *vc = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"声动互娱”想访问您的相册", nil)
+                                                                message:NSLocalizedString(@"声网需要您开启相册访问功能，读取照片上传头像", nil)
+                                                         preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *action1 = [UIAlertAction actionWithTitle:NSLocalizedString(@"不允许", nil)
+                                                      style:UIAlertActionStyleDefault
+                                                    handler:^(UIAlertAction * _Nonnull action) {
+        [self setLibraryAccess:NO];
+    }];
+    UIAlertAction *action2 = [UIAlertAction actionWithTitle:NSLocalizedString(@"好", nil)
+                                                      style:UIAlertActionStyleDefault
+                                                    handler:^(UIAlertAction * _Nonnull action) {
+        [self setLibraryAccess:YES];
+        [self presentviewcontrollerWithSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+    }];
+    [vc addAction:action1];
+    [vc addAction:action2];
+    [self.navigationController presentViewController:vc
+                                            animated:YES
+                                          completion:nil];
+}
+
 - (void)showUploadPicAlter {
     kWeakSelf(self)
     [LEEAlert actionsheet].config
@@ -166,6 +197,11 @@
         action.type = LEEActionTypeDefault;
         action.title = NSLocalizedString(@"本地相册上传", nil);
         action.clickBlock = ^{
+            if ([weakself getLibraryAccess] == NO) {
+                [weakself showAlert];
+                return;
+            }
+            
             [weakself presentviewcontrollerWithSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
         };
     })

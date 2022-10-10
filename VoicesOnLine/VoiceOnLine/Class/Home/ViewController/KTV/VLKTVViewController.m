@@ -590,7 +590,7 @@ static NSInteger streamId = -1;
     if (VLUserCenter.user.ifMaster) { //自己是房主关闭房间
         [LEEAlert alert].config
         .LeeAddTitle(^(UILabel *label) {
-            label.text = NSLocalizedString(@"退出房间", nil);
+            label.text = NSLocalizedString(@"解散房间", nil);
             label.textColor = UIColorMakeWithHex(@"#040925");
             label.font = UIFontBoldMake(16);
         })
