@@ -2059,25 +2059,28 @@ static NSInteger streamId = -1;
         txQuality:(AgoraNetworkQuality)txQuality
         rxQuality:(AgoraNetworkQuality)rxQuality
 {
-//    VLLog(@"Agora - network quality : %lu", txQuality);
+    //    VLLog(@"Agora - network quality : %lu", txQuality);
     
     if(uid == [VLUserCenter.user.id intValue]) {
-        if(txQuality == AgoraNetworkQualityExcellent || txQuality == AgoraNetworkQualityGood) {
+        if(txQuality == AgoraNetworkQualityExcellent || txQuality == AgoraNetworkQualityGood
+           || rxQuality == AgoraNetworkQualityExcellent || rxQuality == AgoraNetworkQualityGood) {
             // Good quality
             [self.topView setNetworkQuality:0];
         }
-        else if(txQuality == AgoraNetworkQualityPoor || txQuality == AgoraNetworkQualityBad) {
+        else if(txQuality == AgoraNetworkQualityPoor || txQuality == AgoraNetworkQualityBad
+            || rxQuality == AgoraNetworkQualityPoor || rxQuality == AgoraNetworkQualityBad) {
             // Bad quality
             [self.topView setNetworkQuality:1];
         }
-        else if(txQuality == AgoraNetworkQualityVBad || txQuality == AgoraNetworkQualityDown) {
+        else if(txQuality == AgoraNetworkQualityVBad || txQuality == AgoraNetworkQualityDown
+                || rxQuality == AgoraNetworkQualityVBad || rxQuality == AgoraNetworkQualityDown) {
             // Barely usable
             [self.topView setNetworkQuality:2];
         }
-        else if(txQuality == AgoraNetworkQualityUnsupported) {
+        else if(txQuality == AgoraNetworkQualityUnsupported || rxQuality == AgoraNetworkQualityUnsupported) {
             [self.topView setNetworkQuality:3];
         }
-        else if(txQuality == AgoraNetworkQualityUnknown) {
+        else if(txQuality == AgoraNetworkQualityUnknown || rxQuality == AgoraNetworkQualityUnknown) {
             [self.topView setNetworkQuality:4];
         }
         else {
