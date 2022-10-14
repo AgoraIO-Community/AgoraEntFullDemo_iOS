@@ -87,9 +87,17 @@
         [self.networkStatusBtn setImage:UIImageMake(@"ktv_network_badIcon") forState:UIControlStateNormal];
         [self.networkStatusBtn setTitle:NSLocalizedString(@"本机网络差", nil) forState:UIControlStateNormal];
     }
+    else if(quality == 3) {
+        [self.networkStatusBtn setImage:UIImageMake(@"ktv_network_badIcon") forState:UIControlStateNormal];
+        [self.networkStatusBtn setTitle:NSLocalizedString(@"本机网络异常", nil) forState:UIControlStateNormal];
+    }
+    else if(quality == 4) {
+        [self.networkStatusBtn setImage:UIImageMake(@"ktv_network_badIcon") forState:UIControlStateNormal];
+        [self.networkStatusBtn setTitle:NSLocalizedString(@"本机网络未知", nil) forState:UIControlStateNormal];
+    }
     else {
         [self.networkStatusBtn setImage:UIImageMake(@"ktv_network_wellIcon") forState:UIControlStateNormal];
-        [self.networkStatusBtn setTitle:NSLocalizedString(@"本机网络好", nil) forState:UIControlStateNormal];
+        [self.networkStatusBtn setTitle:NSLocalizedString(@"本机网络检测中", nil) forState:UIControlStateNormal];
     }
 }
 

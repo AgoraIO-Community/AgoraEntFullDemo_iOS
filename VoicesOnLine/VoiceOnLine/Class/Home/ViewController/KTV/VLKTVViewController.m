@@ -2074,9 +2074,15 @@ static NSInteger streamId = -1;
             // Barely usable
             [self.topView setNetworkQuality:2];
         }
-        else {
-            // Unknown or detecting
+        else if(txQuality == AgoraNetworkQualityUnsupported) {
             [self.topView setNetworkQuality:3];
+        }
+        else if(txQuality == AgoraNetworkQualityUnknown) {
+            [self.topView setNetworkQuality:4];
+        }
+        else {
+            // detecting
+            [self.topView setNetworkQuality:5];
         }
     }
 }

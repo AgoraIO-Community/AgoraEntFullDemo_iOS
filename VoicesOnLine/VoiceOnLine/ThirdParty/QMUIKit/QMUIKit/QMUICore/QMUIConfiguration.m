@@ -286,7 +286,7 @@ static BOOL QMUI_hasAppliedInitialTemplate;
     self.needsBackBarButtonItemTitle = YES;
     self.preventConcurrentNavigationControllerTransitions = YES;
     self.shouldFixTabBarSafeAreaInsetsBug = YES;
-    self.sendAnalyticsToQMUITeam = YES;
+    self.sendAnalyticsToQMUITeam = NO;
 }
 
 #pragma mark - Switch Setter
